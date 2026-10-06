@@ -74,9 +74,22 @@ Main code: `src/farming.cpp`, `src/crop_profile.cpp`, `map::grow_plant` and `map
 - **Growth and harvest** now follow the scarcest of water, nutrients and light each day. Weeks of too little light starve the plant (a few stormy days don't).
 - **Symptoms.** Pale, spindly, stretching plants; Survival 2+ knows it's light.
 
-### Part 5: diagnosis and NPC help (Planned)
+### Part 5: diagnosis and NPC help (Written)
 
-- Symptoms for each problem, more specific with skill; ambiguous where real symptoms are ambiguous.
-- Farming proficiencies, a soil test kit, and farming books.
-- NPCs water plots, report problems, fix them with supplies on hand, and teach.
-- Base camp farms use the same simulation.
+- **Reading plants.** How much the plant examine screen tells you depends on Survival skill plus 2 for the new **Gardening** proficiency. Real symptoms stay ambiguous at low skill: wilting looks the same from drought and from root rot, pale leaves could be hunger or darkness.
+- **Three farming proficiencies** (`data/json/proficiencies/farming.json`): Gardening (12 h), Soil Fertility (20 h) and Plant Pathology (20 h), the last two needing Gardening. They're practiced by tending crops: watering, mulching, covering and harvesting train Gardening; fertilizing and soil tests train Soil Fertility; pulling up plants trains Plant Pathology. Soil Fertility names nutrient shortages; Plant Pathology names diseases.
+- **Soil test kit** (`soil_test_kit`, one test each, found with garden supplies): gives exact moisture, nitrogen, phosphorus, potassium and approximate pH, with notes on acidity. Carrying a pH meter gives the exact pH.
+- **Books**: the *Old Farmer's Almanac* (Survival 0-3; carrying it improves frost judgment by 2 when planting) and an *Extension Bulletin: Soil Fertility for Home Gardens* (Survival 2-5), in bookstores, libraries and garden supplies.
+- **Farmers know their trade.** The Farmer profession and farmer NPCs start with all three farming proficiencies, so farmer NPCs can teach them through the usual training dialogue.
+- **NPC farmhands water.** During farm-zone work, NPCs water thirsty plants with water they carry (give them full containers); they don't fetch water themselves.
+- **"How are the crops doing?"** A new companion dialogue option. The companion looks over crops within 30 tiles and reports what's ready, thirsty, waterlogged, hungry, diseased or in the dark, as accurately as their own knowledge allows (a novice only says which plants "don't look right").
+- **Base camps.** Camp harvests follow the same health and shortage factors, and camp beds remember their crops for rotation.
+- **Background map pieces.** Crop simulation also runs when the game loads map pieces outside your area (base camp fields), reading roofs from the terrain itself.
+- Fertilizing in realistic mode still leaves the usual "fertilized" marker, so each growth stage gets one application, by you or by NPCs.
+
+## Known gaps and ideas for later
+
+- Raw manure food safety (pathogens on root and leafy crops harvested soon after manuring).
+- NPCs fetching water from tanks and barrels.
+- Weeds and insect pests.
+- Drip irrigation from water tanks.

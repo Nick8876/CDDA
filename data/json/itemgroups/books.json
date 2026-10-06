@@ -144,6 +144,8 @@
       { "item": "survival_book", "prob": 12 },
       { "item": "textbook_survival", "prob": 17 },
       { "item": "textbook_botany", "prob": 5 },
+      { "item": "book_farmers_almanac", "prob": 20 },
+      { "item": "book_soil_bulletin", "prob": 10 },
       { "item": "textbook_arthropod", "prob": 5 },
       { "group": "catalyic_cracking_items", "prob": 8 }
     ]
@@ -173,6 +175,7 @@
       { "item": "manual_fabrication", "prob": 20 },
       { "item": "book_nonf_hard_homemk_outkitchn", "prob": 20 },
       { "item": "book_nonf_hard_homemk_plantshome", "prob": 20 },
+      { "item": "book_farmers_almanac", "prob": 15 },
       { "item": "mag_fabrication", "prob": 12 },
       { "item": "concrete_book", "prob": 12 },
       { "item": "textbook_mechanics", "prob": 12 },

@@ -3585,6 +3585,12 @@ std::pair<size_t, std::string> basecamp::farm_action( const point_rel_omt &dir, 
                             ///\EFFECT_SURVIVAL increases number of plants harvested from a seed
                             int plant_count = rng( skillLevel / 2, skillLevel );
                             plant_count *= farm_map.furn( pos )->plant->harvest_multiplier;
+                            if( farming::enabled() ) {
+                                // Weather, water, soil and light decided how well this crop did.
+                                plant_count = static_cast<int>( std::round( plant_count *
+                                                                farming::harvest_factor( *seed ) ) );
+                                farming::on_crop_removed( *farm_map.cast_to_map(), rebase_bub( pos ), *seed );
+                            }
                             plant_count = std::min( std::max( plant_count, 1 ), 12 );
                             int seed_cnt = std::max( 1, rng( plant_count / 4, plant_count / 2 ) );
                             for( item &i : iexamine::get_harvest_items( *seed->type, plant_count,

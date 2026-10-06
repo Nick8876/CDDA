@@ -63,6 +63,9 @@ void add_growth( item &seed, const time_duration &equivalent );
 /** Multiplier for the harvest: health and lost flowers. */
 double harvest_factor( const item &seed );
 
+/** How well someone reads plants: Survival skill, plus 2 with the Gardening proficiency. */
+int plant_knowledge( const Character &who );
+
 /** Lines describing the plant's condition, more precise with Survival skill. */
 std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
         const item &seed, const Character &observer );
@@ -79,6 +82,22 @@ void add_water( map &here, const tripoint_bub_ms &p, double liters );
 bool has_mulch( map &here, const tripoint_bub_ms &p );
 /** Spread mulch on the plot; it lasts about a season. */
 void add_mulch( map &here, const tripoint_bub_ms &p );
+
+/**
+ * Pour water from what the character carries onto the plot, dirty water first, up to what
+ * the soil can hold.
+ * @return Liters poured.
+ */
+int water_from_inventory( Character &who, map &here, const tripoint_bub_ms &p );
+/** Whether the plant growing here is short of water and would benefit from watering now. */
+bool needs_water( map &here, const tripoint_bub_ms &p );
+/** Exact readings from a soil test kit (and pH meter, if any) for the plot. */
+std::vector<std::string> soil_report( map &here, const tripoint_bub_ms &p, bool has_ph_meter );
+/**
+ * What a farmhand would tell you about the crops near them, as accurate as their knowledge.
+ * Empty if there are no crops nearby.
+ */
+std::vector<std::string> crop_report( map &here, const Character &reporter );
 
 /** Units of this fertilizer one application uses. */
 int amendment_dose( const itype_id &amendment );

@@ -178,6 +178,7 @@ static const furn_str_id furn_f_wind_mill_active( "f_wind_mill_active" );
 
 static const itype_id itype_2x4( "2x4" );
 static const itype_id itype_arm_splint( "arm_splint" );
+static const itype_id itype_book_farmers_almanac( "book_farmers_almanac" );
 static const itype_id itype_bot_broken_cyborg( "bot_broken_cyborg" );
 static const itype_id itype_bot_prototype_cyborg( "bot_prototype_cyborg" );
 static const itype_id itype_cactus_pad( "cactus_pad" );
@@ -207,11 +208,13 @@ static const itype_id itype_nail( "nail" );
 static const itype_id itype_nanomaterial( "nanomaterial" );
 static const itype_id itype_nectar( "nectar" );
 static const itype_id itype_petrified_eye( "petrified_eye" );
+static const itype_id itype_ph_meter( "ph_meter" );
 static const itype_id itype_poppy_bud( "poppy_bud" );
 static const itype_id itype_poppy_nectar( "poppy_nectar" );
 static const itype_id itype_seed_cactus( "seed_cactus" );
 static const itype_id itype_seed_dahlia( "seed_dahlia" );
 static const itype_id itype_sheet( "sheet" );
+static const itype_id itype_soil_test_kit( "soil_test_kit" );
 static const itype_id itype_stick( "stick" );
 static const itype_id itype_string_36( "string_36" );
 static const itype_id itype_unfinished_cac2( "unfinished_cac2" );
@@ -244,8 +247,11 @@ static const npc_class_id NC_BALTHAZAR_INTERCOM( "NC_BALTHAZAR_INTERCOM" );
 static const npc_class_id NC_ROBOFAC_INTERCOM( "NC_ROBOFAC_INTERCOM" );
 
 static const proficiency_id proficiency_prof_disarming( "prof_disarming" );
+static const proficiency_id proficiency_prof_gardening( "prof_gardening" );
 static const proficiency_id proficiency_prof_parkour( "prof_parkour" );
+static const proficiency_id proficiency_prof_plant_pathology( "prof_plant_pathology" );
 static const proficiency_id proficiency_prof_safecracking( "prof_safecracking" );
+static const proficiency_id proficiency_prof_soil_science( "prof_soil_science" );
 static const proficiency_id proficiency_prof_traps( "prof_traps" );
 static const proficiency_id proficiency_prof_trapsetting( "prof_trapsetting" );
 
@@ -2758,7 +2764,9 @@ void iexamine::dirtmound( Character &you, const tripoint_bub_ms &examp )
             add_msg( _( "You saved your seeds for later." ) );
             return;
         }
-        const int survival = static_cast<int>( you.get_skill_level( skill_survival ) );
+        // An almanac's frost tables help judge the season.
+        const int survival = farming::plant_knowledge( you ) +
+                             ( you.has_amount( itype_book_farmers_almanac, 1 ) ? 2 : 0 );
         const ret_val<void> outlook = farming::planting_outlook( here, examp, seed_id, survival );
         if( !outlook.success() &&
             !query_yn( _( "%s  Plant anyway?" ), outlook.c_str() ) ) {
@@ -3030,8 +3038,10 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
     const int liters_needed = farming::water_needed_liters( here, examp );
     const bool mulched = farming::has_mulch( here, examp );
 
+    const bool has_test_kit = you.has_amount( itype_soil_test_kit, 1 );
+
     enum plant_action : int {
-        HARVEST, FERTILIZE, COVER, UNCOVER, WATER, MULCH, PULL
+        HARVEST, FERTILIZE, COVER, UNCOVER, WATER, MULCH, PULL, TEST
     };
     uilist menu;
     menu.text = string_join( farming::describe_plant( here, examp, *seed, you ), "\n" );
@@ -3063,6 +3073,8 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
     } else {
         menu.addentry( UNCOVER, true, MENU_AUTOASSIGN, _( "Take the %s off" ), cover->nname( 1 ) );
     }
+    menu.addentry( TEST, has_test_kit, MENU_AUTOASSIGN,
+                   has_test_kit ? _( "Test the soil" ) : _( "Test the soil (needs a soil test kit)" ) );
     menu.addentry( PULL, true, MENU_AUTOASSIGN, _( "Pull up the %s" ), pname );
     menu.query();
 
@@ -3071,16 +3083,29 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
             if( query_yn( _( "Really pull up the %s?  It will die." ), pname ) ) {
                 farming::pull_up_plant( here, examp, *seed );
                 you.mod_moves( -to_moves<int>( 30_seconds ) );
+                you.practice_proficiency( proficiency_prof_plant_pathology, 5_minutes );
                 add_msg( _( "You pull up the %s." ), pname );
             }
             break;
         case HARVEST:
+            you.practice_proficiency( proficiency_prof_gardening, 5_minutes );
             iexamine::harvest_plant( you, examp, false );
             break;
         case FERTILIZE: {
             const itype_id fertilizer = iexamine::choose_fertilizer( you, pname, false );
             if( !fertilizer.is_empty() ) {
+                you.practice_proficiency( proficiency_prof_soil_science, 5_minutes );
                 iexamine::fertilize_plant( you, examp, fertilizer );
+            }
+            break;
+        }
+        case TEST: {
+            std::list<item> used = you.use_amount( itype_soil_test_kit, 1 );
+            if( !used.empty() ) {
+                you.mod_moves( -to_moves<int>( 5_minutes ) );
+                you.practice_proficiency( proficiency_prof_soil_science, 10_minutes );
+                popup( "%s", string_join( farming::soil_report( here, examp,
+                                          you.has_amount( itype_ph_meter, 1 ) ), "\n" ) );
             }
             break;
         }
@@ -3093,24 +3118,18 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
             if( !used.empty() ) {
                 farming::set_cover( *seed, cover_type );
                 you.mod_moves( -to_moves<int>( 30_seconds ) );
+                you.practice_proficiency( proficiency_prof_gardening, 2_minutes );
                 add_msg( _( "You spread the %1$s over the %2$s." ), item::nname( cover_type ), pname );
             }
             break;
         }
         case WATER: {
-            const int liters = std::min( water_liters, liters_needed );
-            // Use dirty water first; plants don't mind it.
-            int charges = liters * 4;
-            const int from_dirty = std::min( charges, dirty_water );
-            if( from_dirty > 0 ) {
-                you.use_charges( itype_water, from_dirty );
+            const int liters = farming::water_from_inventory( you, here, examp );
+            if( liters <= 0 ) {
+                break;
             }
-            charges -= from_dirty;
-            if( charges > 0 ) {
-                you.use_charges( itype_water_clean, charges );
-            }
-            farming::add_water( here, examp, liters );
             you.mod_moves( -to_moves<int>( 3_seconds * liters ) );
+            you.practice_proficiency( proficiency_prof_gardening, 2_minutes );
             add_msg( n_gettext( "You pour %1$d liter of water around the %2$s.",
                                 "You pour %1$d liters of water around the %2$s.", liters ), liters, pname );
             break;
@@ -3124,6 +3143,7 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
             if( !used.empty() ) {
                 farming::add_mulch( here, examp );
                 you.mod_moves( -to_moves<int>( 1_minutes ) );
+                you.practice_proficiency( proficiency_prof_gardening, 2_minutes );
                 add_msg( _( "You spread the %1$s around the %2$s as mulch." ), item::nname( mulch_type ),
                          pname );
             }

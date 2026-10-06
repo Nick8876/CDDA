@@ -158,7 +158,8 @@
       { "skill": "ALL", "level": { "mul": [ { "one_in": 3 }, { "sum": [ { "dice": [ 2, 2 ] }, { "rng": [ 0, -4 ] } ] } ] } },
       { "skill": "survival", "bonus": { "rng": [ 0, 2 ] } },
       { "skill": "rifle", "bonus": { "rng": [ 0, 2 ] } }
-    ]
+    ],
+    "proficiencies": [ "prof_gardening", "prof_soil_science", "prof_plant_pathology" ]
   },
   {
     "type": "npc_class",

@@ -32,7 +32,13 @@
 #include "weather_gen.h"
 #include "weather_type.h"
 
+static const itype_id itype_water( "water" );
+static const itype_id itype_water_clean( "water_clean" );
 static const itype_id itype_withered( "withered" );
+
+static const proficiency_id proficiency_prof_gardening( "prof_gardening" );
+static const proficiency_id proficiency_prof_plant_pathology( "prof_plant_pathology" );
+static const proficiency_id proficiency_prof_soil_science( "prof_soil_science" );
 
 static const skill_id skill_survival( "survival" );
 
@@ -157,7 +163,7 @@ constexpr double indoor_high_cut_c = 2.0;
 /** How much of the day's sun reaches a bed: glass, shade from walls and trees, windows indoors. */
 double sun_share( const map &here, const tripoint_bub_ms &p, const plot_info &plot )
 {
-    if( !plot.exposed && !plot.greenhouse && !has_sunlight_access( p ) ) {
+    if( !plot.exposed && !plot.greenhouse ) {
         // Indoors: only light through nearby windows.
         int windows = 0;
         for( const tripoint_bub_ms &q : here.points_in_radius( p, 1 ) ) {
@@ -241,7 +247,9 @@ plot_info plot_at( const map &here, const tripoint_bub_ms &p )
         plot.drain = planter_drain_mm_per_day;
     }
     plot.greenhouse = here.has_flag_ter( "GREENHOUSE", p );
-    plot.exposed = here.is_outside( p );
+    // Read from the terrain itself rather than the outside cache, which isn't built for
+    // map pieces loaded in the background (base camp fields, map generation).
+    plot.exposed = !here.has_flag( ter_furn_flag::TFLAG_INDOORS, p );
     return plot;
 }
 
@@ -539,7 +547,9 @@ void kill_plant( map &here, const tripoint_bub_ms &p, item &seed, const std::str
 {
     const std::string pname = seed.get_plant_name();
     record_crop_end( here.get_soil( p ), profile_of( seed.typeId() ), false );
-    add_msg_if_player_sees( p, _( "The %1$s has been killed by %2$s." ), pname, cause );
+    if( &here == &get_map() ) {
+        add_msg_if_player_sees( p, _( "The %1$s has been killed by %2$s." ), pname, cause );
+    }
     farming::drop_cover( here, p, seed );
     const furn_id &furn = here.furn( p );
     furn_str_id base = furn_str_id::NULL_ID();
@@ -690,7 +700,10 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     const double lamp_dli = grow_light_at( here, p );
     // Underground it's the same all year; a heated room is as warm as it is now.
     const double cave_c = get_weather().get_cur_weather_gen().base_temperature;
-    const double room_c = units::to_celsius( get_weather().get_temperature( p ) );
+    // Only meaningful for beds in the area around the player; background map pieces have no heaters running.
+    const bool in_bubble = &here == &get_map();
+    const double room_c = !plot.exposed && in_bubble ?
+                          units::to_celsius( get_weather().get_temperature( p ) ) : -100.0;
 
     // The bed itself: bring it up to the day this plant's record starts.
     soil_state &soil = here.get_soil( p );
@@ -957,7 +970,9 @@ std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
     if( !seed.type->seed ) {
         return lines;
     }
-    const int skill = survival_level( observer );
+    const int skill = plant_knowledge( observer );
+    const bool soil_expert = observer.has_proficiency( proficiency_prof_soil_science );
+    const bool disease_expert = observer.has_proficiency( proficiency_prof_plant_pathology );
     const int today = day_index( calendar::turn );
     const double health = seed.get_var( var_health, 100.0 );
     const std::string pname = seed.get_plant_name();
@@ -1043,17 +1058,17 @@ std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
             lines.emplace_back( _( "The leaves are pale and it isn't growing well." ) );
         } else {
             if( n_factor < shortage ) {
-                lines.emplace_back( skill >= 4 ?
+                lines.emplace_back( skill >= 4 || soil_expert ?
                                     _( "Older, lower leaves are turning yellow: it's short of nitrogen." ) :
                                     _( "Older, lower leaves are turning yellow." ) );
             }
             if( p_factor < shortage ) {
-                lines.emplace_back( skill >= 4 ?
+                lines.emplace_back( skill >= 4 || soil_expert ?
                                     _( "The leaves have a dull purple tinge and it's stunted: it's short of phosphorus." ) :
                                     _( "The leaves have a dull purple tinge and it's stunted." ) );
             }
             if( k_factor < shortage ) {
-                lines.emplace_back( skill >= 4 ?
+                lines.emplace_back( skill >= 4 || soil_expert ?
                                     _( "The leaf edges are brown and scorched: it's short of potassium." ) :
                                     _( "The leaf edges are brown and scorched." ) );
             }
@@ -1067,7 +1082,7 @@ std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
     if( seed.has_var( var_infected_day ) ) {
         const std::pair<std::string, std::string> symptoms = disease_symptoms(
                     profile_of( seed.typeId() ).family );
-        if( skill >= 3 ) {
+        if( skill >= 3 || disease_expert ) {
             lines.push_back( symptoms.first + "  " + string_format(
                                  _( "It's %s.  Pulling it up would keep the rest of the bed from catching it." ),
                                  symptoms.second ) );
@@ -1351,6 +1366,193 @@ std::string rotation_warning( map &here, const tripoint_bub_ms &p, const itype_i
                    seed_type->seed->plant_name.translated() );
     }
     return std::string();
+}
+
+int plant_knowledge( const Character &who )
+{
+    return survival_level( who ) + ( who.has_proficiency( proficiency_prof_gardening ) ? 2 : 0 );
+}
+
+int water_from_inventory( Character &who, map &here, const tripoint_bub_ms &p )
+{
+    // Water charges are 250 ml.
+    const int dirty = who.charges_of( itype_water );
+    const int clean = who.charges_of( itype_water_clean );
+    const int liters = std::min( ( dirty + clean ) / 4, water_needed_liters( here, p ) );
+    if( liters <= 0 ) {
+        return 0;
+    }
+    int charges = liters * 4;
+    // Plants don't mind dirty water; save the clean water for people.
+    const int from_dirty = std::min( charges, dirty );
+    if( from_dirty > 0 ) {
+        who.use_charges( itype_water, from_dirty );
+    }
+    charges -= from_dirty;
+    if( charges > 0 ) {
+        who.use_charges( itype_water_clean, charges );
+    }
+    add_water( here, p, liters );
+    return liters;
+}
+
+bool needs_water( map &here, const tripoint_bub_ms &p )
+{
+    map_stack items = here.i_at( p );
+    const map_stack::iterator seed = std::find_if( items.begin(), items.end(), []( const item & it ) {
+        return it.is_seed();
+    } );
+    if( seed == items.end() ) {
+        return false;
+    }
+    const plot_info plot = plot_at( here, p );
+    const soil_state &soil = here.get_soil( p );
+    if( soil.water_mm < 0.0 ) {
+        return false;
+    }
+    const crop_profile &profile = profile_of( seed->typeId() );
+    return water_stress( soil.water_mm, plot.capacity, profile.drought_tolerance ) < 1.0;
+}
+
+std::vector<std::string> soil_report( map &here, const tripoint_bub_ms &p, bool has_ph_meter )
+{
+    update_soil( here, p );
+    const plot_info plot = plot_at( here, p );
+    soil_state &soil = here.get_soil( p );
+    init_soil( soil, plot );
+    std::vector<std::string> lines;
+    const auto level = []( double value, double low, double high ) -> std::string {
+        if( value < low ) {
+            return _( "low" );
+        }
+        return value > high ? _( "high" ) : _( "adequate" );
+    };
+    lines.push_back( string_format( _( "Moisture: %1$.0f of %2$.0f liters the bed can hold." ),
+                                    soil.water_mm, plot.capacity ) );
+    lines.push_back( string_format( _( "Nitrogen: %1$.1f g per square meter (%2$s)." ), soil.nitrogen,
+                                    level( soil.nitrogen, 8.0, burn_nitrogen ) ) );
+    lines.push_back( string_format( _( "Phosphorus: %1$.1f g per square meter (%2$s)." ),
+                                    soil.phosphorus, level( soil.phosphorus, 2.0, 15.0 ) ) );
+    lines.push_back( string_format( _( "Potassium: %1$.1f g per square meter (%2$s)." ), soil.potassium,
+                                    level( soil.potassium, 10.0, 40.0 ) ) );
+    if( has_ph_meter ) {
+        lines.push_back( string_format( _( "pH: %.1f (the meter reads it exactly)." ), soil.ph ) );
+    } else {
+        // The color chart only shows the rough range.
+        lines.push_back( string_format( _( "pH: about %.1f." ), std::round( soil.ph * 2.0 ) / 2.0 ) );
+    }
+    if( soil.ph < 6.0 ) {
+        lines.emplace_back( _( "The soil is acid; some nutrients are locked up.  Wood ash would sweeten it." ) );
+    } else if( soil.ph > 7.0 ) {
+        lines.emplace_back( _( "The soil is alkaline; some nutrients are locked up." ) );
+    }
+    return lines;
+}
+
+std::vector<std::string> crop_report( map &here, const Character &reporter )
+{
+    const int skill = plant_knowledge( reporter );
+    const bool soil_expert = reporter.has_proficiency( proficiency_prof_soil_science );
+    const bool disease_expert = reporter.has_proficiency( proficiency_prof_plant_pathology );
+    // Counts of plants by name with each problem.
+    std::map<std::string, int> ready;
+    std::map<std::string, int> thirsty;
+    std::map<std::string, int> drowning;
+    std::map<std::string, int> hungry;
+    std::map<std::string, int> sick;
+    std::map<std::string, int> dark;
+    std::map<std::string, int> poorly;
+    int plants = 0;
+    for( const tripoint_bub_ms &p : here.points_in_radius( reporter.pos_bub(), 30 ) ) {
+        if( !here.has_flag_furn( ter_furn_flag::TFLAG_PLANT, p ) ) {
+            continue;
+        }
+        map_stack items = here.i_at( p );
+        const map_stack::iterator seed = std::find_if( items.begin(), items.end(), []( const item & it ) {
+            return it.is_seed();
+        } );
+        if( seed == items.end() || !seed->type->seed ) {
+            continue;
+        }
+        plants++;
+        const std::string pname = seed->get_plant_name();
+        if( here.has_flag_furn( ter_furn_flag::TFLAG_GROWTH_HARVEST, p ) ) {
+            ready[pname]++;
+        }
+        const plot_info plot = plot_at( here, p );
+        const soil_state &soil = here.get_soil( p );
+        const crop_profile &profile = profile_of( seed->typeId() );
+        const bool infected = seed->has_var( var_infected_day );
+        const bool rotting = soil.wet_days >= root_rot_days && !profile.flood_tolerant;
+        const bool dry = soil.water_mm >= 0.0 &&
+                         water_stress( soil.water_mm, plot.capacity, profile.drought_tolerance ) < 1.0;
+        const bool short_of_food = std::min( { seed->get_var( var_n_factor, 1.0 ),
+                                               seed->get_var( var_p_factor, 1.0 ),
+                                               seed->get_var( var_k_factor, 1.0 )
+                                             } ) < 0.85;
+        const bool starved_of_light = seed->get_var( var_light_week, 1.0 ) < 0.5;
+        if( skill < 2 ) {
+            // A novice just sees a plant that looks wrong.
+            if( infected || rotting || dry || short_of_food || starved_of_light ||
+                seed->get_var( var_health, 100.0 ) < 70.0 ) {
+                poorly[pname]++;
+            }
+            continue;
+        }
+        if( dry ) {
+            thirsty[pname]++;
+        }
+        if( rotting ) {
+            // Root rot looks like thirst until you know better.
+            ( skill >= 3 ? drowning : thirsty )[pname]++;
+        }
+        if( short_of_food ) {
+            hungry[pname]++;
+        }
+        if( infected ) {
+            sick[pname]++;
+        }
+        if( starved_of_light ) {
+            dark[pname]++;
+        }
+    }
+    std::vector<std::string> lines;
+    if( plants == 0 ) {
+        return lines;
+    }
+    const auto add = [&lines]( const std::map<std::string, int> &found, const char *one,
+    const char *many ) {
+        for( const auto &entry : found ) {
+            lines.push_back( string_format( n_gettext( one, many, entry.second ), entry.second,
+                                            entry.first ) );
+        }
+    };
+    add( ready, "%1$d %2$s plant is ready to harvest.", "%1$d %2$s plants are ready to harvest." );
+    add( poorly, "%1$d %2$s plant doesn't look right to me.",
+         "%1$d %2$s plants don't look right to me." );
+    add( thirsty, "%1$d %2$s plant needs water.", "%1$d %2$s plants need water." );
+    add( drowning, "%1$d %2$s plant is sitting in waterlogged soil; its roots are rotting.",
+         "%1$d %2$s plants are sitting in waterlogged soil; their roots are rotting." );
+    if( soil_expert || skill >= 4 ) {
+        add( hungry, "%1$d %2$s plant is short of nutrients; the bed needs feeding.",
+             "%1$d %2$s plants are short of nutrients; the bed needs feeding." );
+    } else {
+        add( hungry, "%1$d %2$s plant has yellowing leaves.",
+             "%1$d %2$s plants have yellowing leaves." );
+    }
+    if( disease_expert || skill >= 3 ) {
+        add( sick, "%1$d %2$s plant is diseased; we should pull it before it spreads.",
+             "%1$d %2$s plants are diseased; we should pull them before it spreads." );
+    } else {
+        add( sick, "%1$d %2$s plant has spots on its leaves.",
+             "%1$d %2$s plants have spots on their leaves." );
+    }
+    add( dark, "%1$d %2$s plant isn't getting enough light.",
+         "%1$d %2$s plants aren't getting enough light." );
+    if( lines.empty() ) {
+        lines.emplace_back( _( "The crops look fine." ) );
+    }
+    return lines;
 }
 
 itype_id cover_of( const item &seed )

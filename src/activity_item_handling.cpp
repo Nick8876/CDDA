@@ -37,6 +37,7 @@
 #include "debug.h"
 #include "enums.h"
 #include "faction.h"
+#include "farming.h"
 #include "field.h"
 #include "field_type.h"
 #include "fire.h"
@@ -114,6 +115,8 @@ static const itype_id itype_battery( "battery" );
 static const itype_id itype_disassembly( "disassembly" );
 static const itype_id itype_log( "log" );
 static const itype_id itype_soldering_iron( "soldering_iron" );
+static const itype_id itype_water( "water" );
+static const itype_id itype_water_clean( "water_clean" );
 static const itype_id itype_water_faucet( "water_faucet" );
 static const itype_id itype_welder( "welder" );
 
@@ -2442,6 +2445,12 @@ activity_reason_info multi_farm_activity_actor::multi_activity_can_do( Character
                 return activity_reason_info::ok( do_activity_reason::NEEDS_HARVESTING );
             }
         }
+        // realistic farming: a thirsty plant gets watered if the worker carries water
+        else if( farming::enabled() && here.has_flag_furn( ter_furn_flag::TFLAG_PLANT, src_loc ) &&
+                 farming::needs_water( here, src_loc ) &&
+                 you.charges_of( itype_water ) + you.charges_of( itype_water_clean ) >= 4 ) {
+            return activity_reason_info::ok( do_activity_reason::NEEDS_WATERING );
+        }
         // there's a plant that isn't overgrown or harvestable, apply fertilizer if possible
         else if( here.has_flag_furn( ter_furn_flag::TFLAG_PLANT, src_loc ) &&
                  multi_farm_activity_actor::can_fertilize( you, src_loc ).success() &&
@@ -3843,6 +3852,14 @@ bool multi_farm_activity_actor::multi_activity_do( Character &you,
         itype_id used_fertilizer = get_first_fertilizer_itype( you, src );
         if( !used_fertilizer.is_null() ) {
             iexamine::fertilize_plant( you, src_loc, used_fertilizer );
+        }
+        return false;
+    } else if( reason == do_activity_reason::NEEDS_WATERING ) {
+        const int liters = farming::water_from_inventory( you, get_map(), src_loc );
+        if( liters > 0 ) {
+            you.mod_moves( -to_moves<int>( 3_seconds * liters ) );
+            you.add_msg_if_player( n_gettext( "You water the plant with %d liter.",
+                                              "You water the plant with %d liters.", liters ), liters );
         }
         return false;
     }

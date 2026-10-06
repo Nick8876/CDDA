@@ -75,6 +75,7 @@ void do_vehicle_repair( npc & );
 void do_chop_trees( npc & );
 void do_fishing( npc & );
 void do_farming( npc & );
+void crop_report( npc & );
 void do_butcher( npc & );
 void revert_activity( npc & );
 void goto_location( npc & );

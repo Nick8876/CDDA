@@ -1,0 +1,31 @@
+[
+  {
+    "type": "proficiency",
+    "id": "prof_gardening",
+    "category": "prof_survival",
+    "name": { "str": "Gardening" },
+    "description": "You can read a growing plant: when it's thirsty, waterlogged, frost-bitten or starved of light, and what to do about it.  Learned by tending crops.",
+    "can_learn": true,
+    "time_to_learn": "12 h"
+  },
+  {
+    "type": "proficiency",
+    "id": "prof_soil_science",
+    "category": "prof_survival",
+    "name": { "str": "Soil Fertility" },
+    "description": "You know how nitrogen, phosphorus, potassium and pH feed a crop, how to spot which one a plant is short of, and how to feed the soil with manure, compost, ash and fertilizer without burning the roots.  Learned by fertilizing and testing soil.",
+    "can_learn": true,
+    "time_to_learn": "20 h",
+    "required_proficiencies": [ "prof_gardening" ]
+  },
+  {
+    "type": "proficiency",
+    "id": "prof_plant_pathology",
+    "category": "prof_survival",
+    "name": { "str": "Plant Pathology" },
+    "description": "You can tell blight from mildew from rot, know which diseases linger in the soil after which crops, and plan a rotation to starve them out.  Learned by dealing with sick plants.",
+    "can_learn": true,
+    "time_to_learn": "20 h",
+    "required_proficiencies": [ "prof_gardening" ]
+  }
+]

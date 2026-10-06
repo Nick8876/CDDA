@@ -19,6 +19,7 @@
 #include "bionics.h"
 #include "bodypart.h"
 #include "calendar.h"
+#include "cata_utility.h"
 #include "character.h"
 #include "character_id.h"
 #include "character_martial_arts.h"
@@ -31,6 +32,7 @@
 #include "event.h"
 #include "event_bus.h"
 #include "faction.h"
+#include "farming.h"
 #include "flexbuffer_json.h"
 #include "game.h"
 #include "game_constants.h"
@@ -321,6 +323,17 @@ void talk_function::do_chop_trees( npc &p )
 void talk_function::do_farming( npc &p )
 {
     p.assign_activity( multi_farm_activity_actor() );
+}
+
+void talk_function::crop_report( npc &p )
+{
+    const std::vector<std::string> report = farming::crop_report( get_map(), p );
+    if( report.empty() ) {
+        p.say( _( "I don't see any crops around here." ) );
+        return;
+    }
+    popup( "%s", string_format( _( "%s looks over the crops:" ), p.get_name() ) + "\n\n" +
+           string_join( report, "\n" ) );
 }
 
 void talk_function::do_fishing( npc &p )
