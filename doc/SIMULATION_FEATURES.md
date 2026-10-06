@@ -36,14 +36,18 @@ Everything is simulated one day at a time. Crops in areas you are away from are 
 
 Main code: `src/farming.cpp`, `src/crop_profile.cpp`, `map::grow_plant` and `map::process_crops` (`src/map.cpp`), `iexamine::aggie_plant` and `iexamine::dirtmound` (`src/iexamine.cpp`), `weather_generator::get_typical_day` (`src/weather_gen.cpp`).
 
-### Part 2: soil water (Planned)
+### Part 2: soil water (Written)
 
-- Per-plot soil moisture stored on the submap and saved with it.
-- Rain and snowmelt fill it; evapotranspiration (Hargreaves radiation method, from the day's sunlight and temperature, times a crop coefficient by growth stage) empties it.
-- Water above field capacity drains; plots that stay waterlogged for days get root rot. Planters drain faster but hold less.
-- Drought slows growth and shrinks the harvest; long drought kills.
-- Greenhouses and indoor planters get no rain.
-- Watering from carried water; mulch cuts evaporation.
+- **Each plot remembers its soil** (`soil_state` in `src/soil.h`), stored per tile on the submap and saved with it, so it carries over between crops.
+- **Water balance, one day at a time.** Rain and snowmelt fill the root zone. Evapotranspiration takes water out: reference evaporation from the day's sunlight and temperature (Hargreaves radiation method, ET0 = 0.0135 (T + 17.8) Rs), times a crop coefficient for the growth stage (0.4 seed, 0.75 seedling, 1.05 full canopy) and the crop's `water_use`.
+- **Capacity and drainage.** A ground bed holds about 60 mm (liters) of usable water and drains excess at 25 mm a day; a planter holds 35 mm and drains 60 mm a day.
+- **Drought.** Once a crop has used up more than its `drought_tolerance` share of the water, it transpires less, grows more slowly and its harvest shrinks. Near the wilting point it loses health daily and can die.
+- **Waterlogging.** Three days soaked above field capacity starts root rot, except in `flood_tolerant` crops (wild rice, aquatic plants).
+- **No rain under a roof.** Greenhouses and indoor plots must be watered by hand. Greenhouse glass passes 80% of the sun.
+- **Watering** from the plant menu uses water you carry (dirty water first), 250 ml per charge, about 3 seconds per liter, up to what the soil can hold.
+- **Mulch** (straw, leaves, withered plants; `MULCH` flag) cuts evaporation and lasts a season.
+- **Harvest** now follows the average shortage over the growing days (the law of the minimum; nutrients and light join in parts 3 and 4).
+- **Symptoms.** Wilting looks the same from drought and from root rot; Survival 3+ tells them apart by the soil.
 
 ### Part 3: soil nutrients, rotation and disease (Planned)
 

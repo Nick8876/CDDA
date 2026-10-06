@@ -21,7 +21,9 @@
     "frost_damage_temp": "0 C",
     "frost_kill_temp": "-2 C",
     "heat_stress_temp": "35 C",
-    "family": "nightshade"
+    "family": "nightshade",
+    "water_use": 1.05,
+    "drought_tolerance": 0.4
   },
   {
     "type": "crop_profile",
@@ -45,7 +47,9 @@
     "frost_damage_temp": "-1 C",
     "frost_kill_temp": "-3 C",
     "heat_stress_temp": "30 C",
-    "family": "nightshade"
+    "family": "nightshade",
+    "water_use": 1.1,
+    "drought_tolerance": 0.35
   },
   {
     "type": "crop_profile",
@@ -57,7 +61,9 @@
     "frost_damage_temp": "1 C",
     "frost_kill_temp": "-1 C",
     "heat_stress_temp": "38 C",
-    "family": "cucurbit"
+    "family": "cucurbit",
+    "water_use": 1.0,
+    "drought_tolerance": 0.45
   },
   {
     "type": "crop_profile",
@@ -69,7 +75,9 @@
     "frost_damage_temp": "0 C",
     "frost_kill_temp": "-2 C",
     "heat_stress_temp": "35 C",
-    "family": "grass"
+    "family": "grass",
+    "water_use": 1.15,
+    "drought_tolerance": 0.55
   },
   {
     "type": "crop_profile",
@@ -81,7 +89,9 @@
     "frost_damage_temp": "0 C",
     "frost_kill_temp": "-2 C",
     "heat_stress_temp": "32 C",
-    "family": "legume"
+    "family": "legume",
+    "water_use": 1.05,
+    "drought_tolerance": 0.45
   },
   {
     "type": "crop_profile",
@@ -93,7 +103,9 @@
     "frost_damage_temp": "-3 C",
     "frost_kill_temp": "-6 C",
     "heat_stress_temp": "30 C",
-    "family": "legume"
+    "family": "legume",
+    "water_use": 1.1,
+    "drought_tolerance": 0.35
   },
   {
     "type": "crop_profile",
@@ -106,7 +118,9 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-14 C",
     "heat_stress_temp": "30 C",
-    "family": "brassica"
+    "family": "brassica",
+    "water_use": 1.0,
+    "drought_tolerance": 0.45
   },
   {
     "type": "crop_profile",
@@ -119,7 +133,9 @@
     "frost_kill_temp": "-6 C",
     "hardened_kill_temp": "-9 C",
     "heat_stress_temp": "29 C",
-    "family": "brassica"
+    "family": "brassica",
+    "water_use": 1.05,
+    "drought_tolerance": 0.45
   },
   {
     "type": "crop_profile",
@@ -132,7 +148,9 @@
     "frost_kill_temp": "-7 C",
     "hardened_kill_temp": "-15 C",
     "heat_stress_temp": "32 C",
-    "family": "brassica"
+    "family": "brassica",
+    "water_use": 1.0,
+    "drought_tolerance": 0.5
   },
   {
     "type": "crop_profile",
@@ -144,7 +162,9 @@
     "frost_kill_temp": "-6 C",
     "hardened_kill_temp": "-8 C",
     "heat_stress_temp": "28 C",
-    "family": "brassica"
+    "family": "brassica",
+    "water_use": 0.9,
+    "drought_tolerance": 0.3
   },
   {
     "type": "crop_profile",
@@ -169,7 +189,9 @@
     "frost_damage_temp": "-2 C",
     "frost_kill_temp": "-5 C",
     "heat_stress_temp": "29 C",
-    "family": "aster"
+    "family": "aster",
+    "water_use": 1.0,
+    "drought_tolerance": 0.3
   },
   {
     "type": "crop_profile",
@@ -182,7 +204,9 @@
     "frost_kill_temp": "-9 C",
     "hardened_kill_temp": "-15 C",
     "heat_stress_temp": "28 C",
-    "family": "amaranth"
+    "family": "amaranth",
+    "water_use": 1.0,
+    "drought_tolerance": 0.2
   },
   {
     "type": "crop_profile",
@@ -193,7 +217,9 @@
     "frost_damage_temp": "-1 C",
     "frost_kill_temp": "-4 C",
     "heat_stress_temp": "30 C",
-    "family": "carrot"
+    "family": "carrot",
+    "water_use": 1.05,
+    "drought_tolerance": 0.2
   },
   {
     "type": "crop_profile",
@@ -206,7 +232,9 @@
     "frost_kill_temp": "-7 C",
     "hardened_kill_temp": "-10 C",
     "heat_stress_temp": "30 C",
-    "family": "carrot"
+    "family": "carrot",
+    "water_use": 1.05,
+    "drought_tolerance": 0.35
   },
   {
     "type": "crop_profile",
@@ -218,7 +246,9 @@
     "frost_damage_temp": "-2 C",
     "frost_kill_temp": "-5 C",
     "heat_stress_temp": "30 C",
-    "family": "amaranth"
+    "family": "amaranth",
+    "water_use": 1.05,
+    "drought_tolerance": 0.5
   },
   {
     "type": "crop_profile",
@@ -243,7 +273,9 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-15 C",
     "heat_stress_temp": "32 C",
-    "family": "allium"
+    "family": "allium",
+    "water_use": 1.05,
+    "drought_tolerance": 0.3
   },
   {
     "type": "crop_profile",
@@ -256,7 +288,9 @@
     "frost_kill_temp": "-10 C",
     "hardened_kill_temp": "-25 C",
     "heat_stress_temp": "32 C",
-    "family": "allium"
+    "family": "allium",
+    "water_use": 1.0,
+    "drought_tolerance": 0.3
   },
   {
     "type": "crop_profile",
@@ -269,7 +303,9 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-12 C",
     "heat_stress_temp": "34 C",
-    "family": "grass"
+    "family": "grass",
+    "water_use": 1.15,
+    "drought_tolerance": 0.55
   },
   {
     "type": "crop_profile",
@@ -282,7 +318,9 @@
     "frost_kill_temp": "-12 C",
     "hardened_kill_temp": "-23 C",
     "heat_stress_temp": "34 C",
-    "family": "grass"
+    "family": "grass",
+    "water_use": 1.15,
+    "drought_tolerance": 0.55
   },
   {
     "type": "crop_profile",
@@ -294,7 +332,9 @@
     "frost_damage_temp": "0 C",
     "frost_kill_temp": "-2 C",
     "heat_stress_temp": "32 C",
-    "family": "knotweed"
+    "family": "knotweed",
+    "water_use": 1.0,
+    "drought_tolerance": 0.55
   },
   {
     "type": "crop_profile",
@@ -305,7 +345,10 @@
     "frost_damage_temp": "-1 C",
     "frost_kill_temp": "-3 C",
     "heat_stress_temp": "34 C",
-    "family": "grass"
+    "family": "grass",
+    "water_use": 1.2,
+    "drought_tolerance": 0.2,
+    "flood_tolerant": true
   },
   {
     "type": "crop_profile",
@@ -316,7 +359,9 @@
     "frost_damage_temp": "-2 C",
     "frost_kill_temp": "-4 C",
     "heat_stress_temp": "36 C",
-    "family": "aster"
+    "family": "aster",
+    "water_use": 1.05,
+    "drought_tolerance": 0.45
   },
   {
     "type": "crop_profile",
@@ -328,7 +373,9 @@
     "frost_damage_temp": "0 C",
     "frost_kill_temp": "-2 C",
     "heat_stress_temp": "37 C",
-    "family": "mallow"
+    "family": "mallow",
+    "water_use": 1.15,
+    "drought_tolerance": 0.65
   },
   {
     "type": "crop_profile",
@@ -352,7 +399,9 @@
     "frost_kill_temp": "-5 C",
     "hardened_kill_temp": "-30 C",
     "heat_stress_temp": "34 C",
-    "family": "hemp"
+    "family": "hemp",
+    "water_use": 1.05,
+    "drought_tolerance": 0.5
   },
   {
     "type": "crop_profile",
@@ -376,7 +425,9 @@
     "frost_kill_temp": "-6 C",
     "hardened_kill_temp": "-10 C",
     "heat_stress_temp": "32 C",
-    "family": "aster"
+    "family": "aster",
+    "water_use": 1.0,
+    "drought_tolerance": 0.45
   },
   {
     "type": "crop_profile",
@@ -401,7 +452,9 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-30 C",
     "heat_stress_temp": "34 C",
-    "family": "rose"
+    "family": "rose",
+    "water_use": 1.0,
+    "drought_tolerance": 0.5
   },
   {
     "type": "crop_profile",
@@ -414,7 +467,9 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-32 C",
     "heat_stress_temp": "32 C",
-    "family": "heath"
+    "family": "heath",
+    "water_use": 1.0,
+    "drought_tolerance": 0.4
   },
   {
     "type": "crop_profile",
@@ -427,7 +482,9 @@
     "frost_kill_temp": "-6 C",
     "hardened_kill_temp": "-28 C",
     "heat_stress_temp": "36 C",
-    "family": "none"
+    "family": "none",
+    "water_use": 0.95,
+    "drought_tolerance": 0.55
   },
   {
     "type": "crop_profile",
@@ -453,7 +510,9 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-28 C",
     "heat_stress_temp": "36 C",
-    "family": "none"
+    "family": "none",
+    "water_use": 0.85,
+    "drought_tolerance": 0.6
   },
   {
     "type": "crop_profile",
@@ -466,7 +525,9 @@
     "frost_kill_temp": "-10 C",
     "hardened_kill_temp": "-18 C",
     "heat_stress_temp": "38 C",
-    "family": "grass"
+    "family": "grass",
+    "water_use": 1.1,
+    "drought_tolerance": 0.5
   },
   {
     "type": "crop_profile",
@@ -479,7 +540,9 @@
     "frost_kill_temp": "-15 C",
     "hardened_kill_temp": "-28 C",
     "heat_stress_temp": "45 C",
-    "family": "cactus"
+    "family": "cactus",
+    "water_use": 0.4,
+    "drought_tolerance": 0.85
   },
   {
     "type": "crop_profile",
@@ -492,7 +555,10 @@
     "frost_kill_temp": "-15 C",
     "hardened_kill_temp": "-30 C",
     "heat_stress_temp": "36 C",
-    "family": "none"
+    "family": "none",
+    "water_use": 1.2,
+    "drought_tolerance": 0.2,
+    "flood_tolerant": true
   },
   {
     "type": "crop_profile",
@@ -504,7 +570,9 @@
     "frost_damage_temp": "-15 C",
     "frost_kill_temp": "-30 C",
     "heat_stress_temp": "30 C",
-    "family": "fungus"
+    "family": "fungus",
+    "water_use": 0.3,
+    "drought_tolerance": 0.3
   },
   {
     "type": "crop_profile",
@@ -516,6 +584,8 @@
     "frost_damage_temp": "-60 C",
     "frost_kill_temp": "-80 C",
     "heat_stress_temp": "60 C",
-    "family": "mycus"
+    "family": "mycus",
+    "water_use": 0.5,
+    "drought_tolerance": 0.9
   }
 ]

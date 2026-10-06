@@ -22,6 +22,7 @@
 #include "mapdata.h"
 #include "messages.h"
 #include "options.h"
+#include "soil.h"
 #include "string_formatter.h"
 #include "translations.h"
 #include "weather.h"
@@ -47,6 +48,11 @@ constexpr const char *var_frost_day = "farm_frost_day";
 constexpr const char *var_frost_loss = "farm_frost_loss";
 constexpr const char *var_heat_day = "farm_heat_day";
 constexpr const char *var_cover = "farm_cover";
+constexpr const char *var_water_factor = "farm_water_factor";
+constexpr const char *var_limit_sum = "farm_limit_sum";
+constexpr const char *var_limit_weight = "farm_limit_weight";
+constexpr const char *var_drought_day = "farm_drought_day";
+constexpr const char *var_rot_day = "farm_rot_day";
 
 // Days of cold it takes a hardy plant to fully acclimate.
 constexpr double hardening_days = 14.0;
@@ -65,6 +71,169 @@ constexpr double cover_high_bonus_c = 1.0;
 constexpr double greenhouse_low_bonus_c = 5.0;
 constexpr double greenhouse_cool_day_high_bonus_c = 8.0;
 constexpr double greenhouse_warm_day_high_bonus_c = 3.0;
+
+// Soil water.  A tile is about one square meter, so 1 mm of water is 1 liter.
+// Plant-available water held by the root zone of a loam bed (about 120 mm per meter of soil,
+// roots in the top half meter), and by a smaller, shallower planter box.
+constexpr double ground_capacity_mm = 60.0;
+constexpr double planter_capacity_mm = 35.0;
+// How fast water above field capacity drains away each day.
+constexpr double ground_drain_mm_per_day = 25.0;
+constexpr double planter_drain_mm_per_day = 60.0;
+// Beyond this multiple of field capacity the bed is flooded and the rest runs off.
+constexpr double saturation_factor = 1.6;
+// Above this multiple of field capacity after drainage, the roots are short of air.
+constexpr double waterlogged_factor = 1.1;
+// Days of waterlogging before the roots start to rot.
+constexpr int root_rot_days = 3;
+// Evaporation from bare, moist soil relative to the reference crop.
+constexpr double bare_soil_kc = 0.3;
+// Mulch shades the soil surface and cuts evaporation.
+constexpr double mulch_et_factor = 0.8;
+constexpr double mulch_bare_soil_factor = 0.5;
+// Glass passes most but not all sunlight.
+constexpr double greenhouse_light_transmission = 0.8;
+// Evaporative demand indoors without sun, as mm/day of radiation equivalent.
+constexpr double indoor_radiation_mm = 1.0;
+// Converts MJ/m2 of solar energy into the mm of water it could evaporate (1 / 2.45 MJ/kg).
+constexpr double mj_to_evaporation_mm = 0.408;
+
+struct plot_info {
+    double capacity = ground_capacity_mm;
+    double drain = ground_drain_mm_per_day;
+    // Open to the sky: rain and snow fall on it.
+    bool exposed = true;
+    bool greenhouse = false;
+};
+
+bool is_planter( const map &here, const tripoint_bub_ms &p )
+{
+    static const furn_str_id furn_f_planter( "f_planter" );
+    const furn_t &furn = here.furn( p ).obj();
+    if( furn.id == furn_f_planter ) {
+        return true;
+    }
+    return furn.plant && furn.plant->base == furn_f_planter;
+}
+
+plot_info plot_at( const map &here, const tripoint_bub_ms &p )
+{
+    plot_info plot;
+    if( is_planter( here, p ) ) {
+        plot.capacity = planter_capacity_mm;
+        plot.drain = planter_drain_mm_per_day;
+    }
+    plot.greenhouse = here.has_flag_ter( "GREENHOUSE", p );
+    plot.exposed = here.is_outside( p );
+    return plot;
+}
+
+/** Reference evapotranspiration (mm/day): Hargreaves' radiation method, ET0 = 0.0135 (T + 17.8) Rs. */
+double reference_et_mm( const farming::daily_weather &w, double mean_c, const plot_info &plot )
+{
+    double radiation_mm = w.radiant_exposure / 1.0e6 * mj_to_evaporation_mm;
+    if( plot.greenhouse ) {
+        radiation_mm *= greenhouse_light_transmission;
+    } else if( !plot.exposed ) {
+        radiation_mm = indoor_radiation_mm;
+    }
+    return std::max( 0.0, 0.0135 * ( mean_c + 17.8 ) * radiation_mm );
+}
+
+/** Crop coefficient by growth stage (FAO-56): small seedlings use little, a full canopy the most. */
+double stage_kc( const std::string &stage )
+{
+    if( stage == "GROWTH_SEED" ) {
+        return 0.4;
+    }
+    if( stage == "GROWTH_SEEDLING" ) {
+        return 0.75;
+    }
+    if( stage == "GROWTH_MATURE" ) {
+        return 1.05;
+    }
+    if( stage == "GROWTH_HARVEST" ) {
+        return 0.85;
+    }
+    return 0.75;
+}
+
+/** Water stress factor (FAO-56 Ks): 1 while the plant can easily draw water, falling to 0 when dry. */
+double water_stress( double water_mm, double capacity, double tolerance )
+{
+    const double threshold = ( 1.0 - tolerance ) * capacity;
+    if( water_mm >= threshold ) {
+        return 1.0;
+    }
+    return std::clamp( water_mm / std::max( 0.01, threshold ), 0.0, 1.0 );
+}
+
+/** Below this much water the plant wilts and starts to die. */
+double wilting_point( double capacity, double tolerance )
+{
+    return 0.3 * ( 1.0 - tolerance ) * capacity;
+}
+
+bool mulched( const soil_state &soil, int day )
+{
+    return soil.mulch_until >= day;
+}
+
+void init_soil( soil_state &soil, const plot_info &plot )
+{
+    if( soil.water_mm < 0.0 ) {
+        soil.water_mm = 0.7 * plot.capacity;
+    }
+}
+
+/**
+ * Finish a day of soil water once rain has come in: take out what the plants and soil lose,
+ * drain the excess and track waterlogging.
+ * @return Millimeters of water that drained through the root zone.
+ */
+double end_water_day( soil_state &soil, const plot_info &plot, double loss_mm )
+{
+    soil.water_mm = std::max( 0.0, soil.water_mm - loss_mm );
+    const double excess = soil.water_mm - plot.capacity;
+    double drained = 0.0;
+    if( excess > 0.0 ) {
+        drained = std::min( excess, plot.drain );
+        soil.water_mm -= drained;
+    }
+    soil.water_mm = std::min( soil.water_mm, plot.capacity * saturation_factor );
+    if( soil.water_mm > plot.capacity * waterlogged_factor ) {
+        soil.wet_days++;
+    } else {
+        soil.wet_days = 0;
+    }
+    return drained;
+}
+
+/** Bring a plot's soil up to date for days when nothing grew in it. */
+void soil_catch_up( soil_state &soil, const plot_info &plot, const tripoint_abs_omt &omt,
+                    int until_day )
+{
+    init_soil( soil, plot );
+    if( soil.last_day < 0 ) {
+        soil.last_day = until_day;
+        return;
+    }
+    for( int day = std::max( soil.last_day, until_day - max_catch_up_days ); day < until_day; ++day ) {
+        const farming::daily_weather &w = farming::weather_on_day( omt, day );
+        if( plot.exposed ) {
+            // Snow on a bare plot melts into it sooner or later.
+            soil.water_mm += w.rain_mm + w.snow_water_mm;
+        }
+        // Bare soil only loses much water while its surface is moist.
+        const double surface_wetness = std::min( 1.0, soil.water_mm / ( 0.5 * plot.capacity ) );
+        double evaporation = reference_et_mm( w, w.mean_c, plot ) * bare_soil_kc * surface_wetness;
+        if( mulched( soil, day ) ) {
+            evaporation *= mulch_bare_soil_factor;
+        }
+        end_water_day( soil, plot, evaporation );
+    }
+    soil.last_day = std::max( soil.last_day, until_day );
+}
 
 const crop_profile &profile_of( const itype_id &seed_type )
 {
@@ -260,9 +429,14 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
 
     const std::vector<double> thresholds = detail::stage_thresholds( seed_type );
     const tripoint_abs_omt omt = ground_omt( here.get_abs( p ) );
-    const bool greenhouse = is_greenhouse( here, p );
+    const plot_info plot = plot_at( here, p );
+    const bool greenhouse = plot.greenhouse;
     const bool covered = !cover_of( seed ).is_null();
     const double scale = season_scale();
+
+    // The bed itself: bring it up to the day this plant's record starts.
+    soil_state &soil = here.get_soil( p );
+    soil_catch_up( soil, plot, omt, day );
 
     double gdd = seed.get_var( var_gdd, 0.0 );
     double last_gdd = seed.get_var( var_last_gdd, 0.0 );
@@ -270,6 +444,9 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     double yield = seed.get_var( var_yield, 1.0 );
     double hardening = seed.get_var( var_hardening, 0.0 );
     double snow = seed.get_var( var_snow, 0.0 );
+    double water_factor = seed.get_var( var_water_factor, 1.0 );
+    double limit_sum = seed.get_var( var_limit_sum, 0.0 );
+    double limit_weight = seed.get_var( var_limit_weight, 0.0 );
     bool died = false;
     std::string cause;
 
@@ -278,16 +455,19 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
         double low = w.low_c;
         double high = w.high_c;
         double mean = w.mean_c;
+        double melt_water = 0.0;
 
         if( greenhouse ) {
             low += greenhouse_low_bonus_c;
             high += high < 20.0 ? greenhouse_cool_day_high_bonus_c : greenhouse_warm_day_high_bonus_c;
             mean = ( low + high ) / 2.0;
-        } else {
+        } else if( plot.exposed ) {
             // Snowpack on the bed: builds from snowfall, melts on warm days.
             snow += w.snow_water_mm * snow_per_water_mm;
             if( mean > 0.0 ) {
-                snow -= snow_melt_mm_per_degree_hour * 24.0 * mean;
+                const double melted = std::min( snow, snow_melt_mm_per_degree_hour * 24.0 * mean );
+                snow -= melted;
+                melt_water = melted / snow_per_water_mm;
             }
             snow = std::max( 0.0, snow );
         }
@@ -300,6 +480,40 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
         const bool low_growing = stage == "GROWTH_SEED" || stage == "GROWTH_SEEDLING";
         if( snow >= insulating_snow_mm && ( low_growing || profile.overwinters() ) ) {
             low = std::max( low, -2.0 );
+        }
+
+        // Soil water, unless the bed was already brought past this day.
+        if( day >= soil.last_day ) {
+            if( plot.exposed ) {
+                soil.water_mm += w.rain_mm + melt_water;
+            }
+            water_factor = water_stress( soil.water_mm, plot.capacity, profile.drought_tolerance );
+            double kc = stage_kc( stage ) * profile.water_use;
+            if( mulched( soil, day ) ) {
+                kc *= mulch_et_factor;
+            }
+            // A thirsty plant closes its pores and transpires less (FAO-56 Ks).
+            end_water_day( soil, plot, reference_et_mm( w, mean, plot ) * kc * water_factor );
+            soil.last_day = day + 1;
+        }
+
+        double damage = 0.0;
+        if( soil.water_mm < wilting_point( plot.capacity, profile.drought_tolerance ) ) {
+            damage += 5.0;
+            seed.set_var( var_drought_day, static_cast<double>( day ) );
+            cause = _( "drought" );
+        }
+        if( soil.wet_days >= root_rot_days && !profile.flood_tolerant ) {
+            damage += 4.0;
+            seed.set_var( var_rot_day, static_cast<double>( day ) );
+            cause = _( "root rot" );
+        }
+        if( damage > 0.0 ) {
+            health -= damage;
+            if( health <= 0.0 ) {
+                died = true;
+                break;
+            }
         }
 
         // Hardy plants toughen up over cold weeks and lose it again in warm spells.
@@ -338,15 +552,23 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
             }
         }
 
-        last_gdd = profile.degree_days( low, high ) * scale;
+        const double potential_gdd = profile.degree_days( low, high ) * scale;
+        // Water stress slows development somewhat, and growth (the harvest) a lot.
+        last_gdd = potential_gdd * ( 0.4 + 0.6 * water_factor );
         gdd += last_gdd;
-        // Growing plants slowly replace damaged leaves.
-        if( frost <= 0.0 && last_gdd > 0.0 ) {
+        if( stage != "GROWTH_SEED" && stage != "GROWTH_HARVEST" ) {
+            // The harvest follows the worst shortage on each growing day, weighted by growth.
+            limit_sum += potential_gdd * water_factor;
+            limit_weight += potential_gdd;
+        }
+        // Growing, unstressed plants slowly replace damaged leaves.
+        if( frost <= 0.0 && damage <= 0.0 && last_gdd > 0.0 && water_factor > 0.5 ) {
             health = std::min( 100.0, health + 2.0 );
         }
     }
 
     if( died ) {
+        soil.last_day = std::max( soil.last_day, day + 1 );
         kill_plant( here, p, seed, cause );
         return false;
     }
@@ -357,6 +579,9 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     seed.set_var( var_yield, yield );
     seed.set_var( var_hardening, hardening );
     seed.set_var( var_snow, snow );
+    seed.set_var( var_water_factor, water_factor );
+    seed.set_var( var_limit_sum, limit_sum );
+    seed.set_var( var_limit_weight, limit_weight );
     return true;
 }
 
@@ -381,8 +606,11 @@ double harvest_factor( const item &seed )
 {
     const double health = std::clamp( seed.get_var( var_health, 100.0 ), 0.0, 100.0 );
     const double yield = std::clamp( seed.get_var( var_yield, 1.0 ), 0.0, 1.0 );
+    const double weight = seed.get_var( var_limit_weight, 0.0 );
+    const double shortages = weight > 0.0 ?
+                             std::clamp( seed.get_var( var_limit_sum, 0.0 ) / weight, 0.0, 1.0 ) : 1.0;
     // A damaged plant still sets some crop; health matters less than lost flowers.
-    return yield * ( 0.25 + 0.75 * health / 100.0 );
+    return yield * shortages * ( 0.25 + 0.75 * health / 100.0 );
 }
 
 bool is_greenhouse( const map &here, const tripoint_bub_ms &p )
@@ -390,7 +618,7 @@ bool is_greenhouse( const map &here, const tripoint_bub_ms &p )
     return here.has_flag_ter( "GREENHOUSE", p );
 }
 
-std::vector<std::string> describe_plant( const map &here, const tripoint_bub_ms &p,
+std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
         const item &seed, const Character &observer )
 {
     std::vector<std::string> lines;
@@ -460,6 +688,42 @@ std::vector<std::string> describe_plant( const map &here, const tripoint_bub_ms 
             lines.push_back( string_format(
                                  n_gettext( "It should be ready after about %d warm day.",
                                             "It should be ready after about %d warm days.", days ), days ) );
+        }
+    }
+
+    // Soil water.  Wilting looks the same whether the roots are dry or drowning;
+    // only an experienced grower reads the soil to tell which.
+    const plot_info plot = plot_at( here, p );
+    const soil_state &soil = here.get_soil( p );
+    const crop_profile &profile = profile_of( seed.typeId() );
+    if( soil.water_mm >= 0.0 ) {
+        const bool rotting = soil.wet_days >= root_rot_days && !profile.flood_tolerant;
+        const bool parched = soil.water_mm < wilting_point( plot.capacity, profile.drought_tolerance );
+        if( parched || rotting ) {
+            if( skill < 3 ) {
+                lines.emplace_back( _( "The leaves are drooping and wilted." ) );
+            } else if( parched ) {
+                lines.emplace_back( _( "The leaves are wilting and the soil is bone dry: it badly needs water." ) );
+            } else {
+                lines.emplace_back(
+                    _( "The leaves are wilting although the soil is soaked: the roots are rotting in the wet." ) );
+            }
+        }
+        if( parched ) {
+            lines.emplace_back( _( "The soil is dry and crumbly." ) );
+        } else if( water_stress( soil.water_mm, plot.capacity, profile.drought_tolerance ) < 1.0 ) {
+            if( skill >= 1 ) {
+                lines.emplace_back( _( "The soil is dry a finger's depth down; it could use watering." ) );
+            } else {
+                lines.emplace_back( _( "The soil looks dry." ) );
+            }
+        } else if( soil.wet_days > 0 ) {
+            lines.emplace_back( _( "The soil is soggy and puddled." ) );
+        } else {
+            lines.emplace_back( _( "The soil is moist." ) );
+        }
+        if( mulched( soil, today ) ) {
+            lines.emplace_back( _( "A layer of mulch covers the soil." ) );
         }
     }
 
@@ -560,6 +824,48 @@ ret_val<void> planting_outlook( const map &here, const tripoint_bub_ms &p,
         }
     }
     return ret_val<void>::make_failure( _( "It's too cold here for the %s to ever ripen." ), pname );
+}
+
+double field_capacity( const map &here, const tripoint_bub_ms &p )
+{
+    return plot_at( here, p ).capacity;
+}
+
+void update_soil( map &here, const tripoint_bub_ms &p )
+{
+    const plot_info plot = plot_at( here, p );
+    soil_catch_up( here.get_soil( p ), plot, ground_omt( here.get_abs( p ) ),
+                   day_index( calendar::turn ) );
+}
+
+int water_needed_liters( map &here, const tripoint_bub_ms &p )
+{
+    const plot_info plot = plot_at( here, p );
+    const soil_state &soil = here.get_soil( p );
+    if( soil.water_mm < 0.0 ) {
+        return 0;
+    }
+    return std::max( 0, static_cast<int>( std::ceil( plot.capacity - soil.water_mm ) ) );
+}
+
+void add_water( map &here, const tripoint_bub_ms &p, double liters )
+{
+    const plot_info plot = plot_at( here, p );
+    soil_state &soil = here.get_soil( p );
+    init_soil( soil, plot );
+    soil.water_mm = std::min( soil.water_mm + liters, plot.capacity * saturation_factor );
+}
+
+bool has_mulch( map &here, const tripoint_bub_ms &p )
+{
+    return mulched( here.get_soil( p ), day_index( calendar::turn ) );
+}
+
+void add_mulch( map &here, const tripoint_bub_ms &p )
+{
+    soil_state &soil = here.get_soil( p );
+    init_soil( soil, plot_at( here, p ) );
+    soil.mulch_until = day_index( calendar::turn ) + to_days<int>( calendar::season_length() );
 }
 
 itype_id cover_of( const item &seed )

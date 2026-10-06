@@ -9639,6 +9639,19 @@ void map::process_crops()
     }
 }
 
+soil_state &map::get_soil( const tripoint_bub_ms &p )
+{
+    point_sm_ms l;
+    submap *const current_submap = get_submap_at( p, l );
+    if( current_submap == nullptr ) {
+        // Outside the loaded map: hand back a throwaway record.
+        static soil_state nowhere;
+        nowhere = soil_state();
+        return nowhere;
+    }
+    return current_submap->soil[l];
+}
+
 void map::restock_fruits( const tripoint_bub_ms &p, const time_duration &time_since_last_actualize )
 {
     const ter_t &ter = this->ter( p ).obj();

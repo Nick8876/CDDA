@@ -276,6 +276,11 @@ void submap::rotate( int turns )
         rot_comp.emplace( rotate_point( elem.first ), elem.second );
     }
     computers = rot_comp;
+    std::map<point_sm_ms, soil_state> rot_soil;
+    for( const auto &elem : soil ) {
+        rot_soil.emplace( rotate_point( elem.first ), elem.second );
+    }
+    soil = rot_soil;
 }
 
 void submap::mirror( bool horizontally )
@@ -302,6 +307,12 @@ void submap::mirror( bool horizontally )
             mirror_comp.emplace( point( -elem.first.x(), elem.first.y() ) + point( SEEX - 1, 0 ), elem.second );
         }
         computers = mirror_comp;
+
+        std::map<point_sm_ms, soil_state> mirror_soil;
+        for( const auto &elem : soil ) {
+            mirror_soil.emplace( point( -elem.first.x(), elem.first.y() ) + point( SEEX - 1, 0 ), elem.second );
+        }
+        soil = mirror_soil;
     } else {
         for( int k = 0, ke = SEEY / 2; k < ke; k++ ) {
             for( int i = 0; i < SEEX; i++ ) {
@@ -319,6 +330,12 @@ void submap::mirror( bool horizontally )
             mirror_comp.emplace( point( elem.first.x(), -elem.first.y() ) + point( 0, SEEY - 1 ), elem.second );
         }
         computers = mirror_comp;
+
+        std::map<point_sm_ms, soil_state> mirror_soil;
+        for( const auto &elem : soil ) {
+            mirror_soil.emplace( point( elem.first.x(), -elem.first.y() ) + point( 0, SEEY - 1 ), elem.second );
+        }
+        soil = mirror_soil;
     }
 }
 

@@ -64,8 +64,21 @@ void add_growth( item &seed, const time_duration &equivalent );
 double harvest_factor( const item &seed );
 
 /** Lines describing the plant's condition, more precise with Survival skill. */
-std::vector<std::string> describe_plant( const map &here, const tripoint_bub_ms &p,
+std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
         const item &seed, const Character &observer );
+
+/** Plant-available water the plot holds when fully moist, in millimeters (liters per tile). */
+double field_capacity( const map &here, const tripoint_bub_ms &p );
+/** Bring a plot's soil up to date to today, for plots with nothing growing in them. */
+void update_soil( map &here, const tripoint_bub_ms &p );
+/** Whole liters of water it takes to bring the plot back to fully moist. */
+int water_needed_liters( map &here, const tripoint_bub_ms &p );
+/** Pour this many liters of water on the plot. */
+void add_water( map &here, const tripoint_bub_ms &p, double liters );
+/** Whether the plot is covered in mulch. */
+bool has_mulch( map &here, const tripoint_bub_ms &p );
+/** Spread mulch on the plot; it lasts about a season. */
+void add_mulch( map &here, const tripoint_bub_ms &p );
 
 /** Whether the tile is inside a greenhouse. */
 bool is_greenhouse( const map &here, const tripoint_bub_ms &p );

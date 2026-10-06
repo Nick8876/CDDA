@@ -144,6 +144,7 @@ static const efftype_id effect_weak_antibiotic( "weak_antibiotic" );
 static const faction_id faction_robofac( "robofac" );
 
 static const flag_id json_flag_FROST_COVER( "FROST_COVER" );
+static const flag_id json_flag_MULCH( "MULCH" );
 
 static const furn_str_id furn_f_arcfurnace_empty( "f_arcfurnace_empty" );
 static const furn_str_id furn_f_arcfurnace_full( "f_arcfurnace_full" );
@@ -215,6 +216,8 @@ static const itype_id itype_stick( "stick" );
 static const itype_id itype_string_36( "string_36" );
 static const itype_id itype_unfinished_cac2( "unfinished_cac2" );
 static const itype_id itype_unfinished_charcoal( "unfinished_charcoal" );
+static const itype_id itype_water( "water" );
+static const itype_id itype_water_clean( "water_clean" );
 static const itype_id itype_withered( "withered" );
 
 static const json_character_flag json_flag_GLIDE( "GLIDE" );
@@ -3010,13 +3013,36 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
     const bool fertilized = here.i_at( examp ).size() > 1;
     const itype_id cover = farming::cover_of( *seed );
     std::vector<item_location> covers = you.cache_get_items_with( json_flag_FROST_COVER );
+    std::vector<item_location> mulches = you.cache_get_items_with( json_flag_MULCH );
+    // Water carried in containers, in whole liters (each charge is 250 ml).
+    const int dirty_water = you.charges_of( itype_water );
+    const int clean_water = you.charges_of( itype_water_clean );
+    const int water_liters = ( dirty_water + clean_water ) / 4;
+    const int liters_needed = farming::water_needed_liters( here, examp );
+    const bool mulched = farming::has_mulch( here, examp );
 
     enum plant_action : int {
-        HARVEST, FERTILIZE, COVER, UNCOVER
+        HARVEST, FERTILIZE, COVER, UNCOVER, WATER, MULCH
     };
     uilist menu;
     menu.text = string_join( farming::describe_plant( here, examp, *seed, you ), "\n" );
     menu.addentry( HARVEST, harvestable, MENU_AUTOASSIGN, _( "Harvest the %s" ), pname );
+    if( liters_needed <= 0 ) {
+        menu.addentry( WATER, false, MENU_AUTOASSIGN, _( "Water (the soil is already moist)" ) );
+    } else if( water_liters <= 0 ) {
+        menu.addentry( WATER, false, MENU_AUTOASSIGN, _( "Water (you have no water with you)" ) );
+    } else {
+        menu.addentry( WATER, true, MENU_AUTOASSIGN, _( "Water it (%1$d of %2$d liters needed)" ),
+                       std::min( water_liters, liters_needed ), liters_needed );
+    }
+    if( mulched ) {
+        menu.addentry( MULCH, false, MENU_AUTOASSIGN, _( "Mulch (already mulched)" ) );
+    } else if( mulches.empty() ) {
+        menu.addentry( MULCH, false, MENU_AUTOASSIGN, _( "Mulch (needs straw, leaves or dead plants)" ) );
+    } else {
+        menu.addentry( MULCH, true, MENU_AUTOASSIGN, _( "Mulch the soil with your %s" ),
+                       mulches.front()->tname() );
+    }
     menu.addentry( FERTILIZE, !harvestable && !fertilized, MENU_AUTOASSIGN,
                    fertilized ? _( "Fertilize (already fertilized)" ) : _( "Fertilize" ) );
     if( cover.is_null() && covers.empty() ) {
@@ -3051,6 +3077,38 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
                 farming::set_cover( *seed, cover_type );
                 you.mod_moves( -to_moves<int>( 30_seconds ) );
                 add_msg( _( "You spread the %1$s over the %2$s." ), item::nname( cover_type ), pname );
+            }
+            break;
+        }
+        case WATER: {
+            const int liters = std::min( water_liters, liters_needed );
+            // Use dirty water first; plants don't mind it.
+            int charges = liters * 4;
+            const int from_dirty = std::min( charges, dirty_water );
+            if( from_dirty > 0 ) {
+                you.use_charges( itype_water, from_dirty );
+            }
+            charges -= from_dirty;
+            if( charges > 0 ) {
+                you.use_charges( itype_water_clean, charges );
+            }
+            farming::add_water( here, examp, liters );
+            you.mod_moves( -to_moves<int>( 3_seconds * liters ) );
+            add_msg( n_gettext( "You pour %1$d liter of water around the %2$s.",
+                                "You pour %1$d liters of water around the %2$s.", liters ), liters, pname );
+            break;
+        }
+        case MULCH: {
+            if( mulches.empty() ) {
+                break;
+            }
+            const itype_id mulch_type = mulches.front()->typeId();
+            std::list<item> used = you.use_amount( mulch_type, 1 );
+            if( !used.empty() ) {
+                farming::add_mulch( here, examp );
+                you.mod_moves( -to_moves<int>( 1_minutes ) );
+                add_msg( _( "You spread the %1$s around the %2$s as mulch." ), item::nname( mulch_type ),
+                         pname );
             }
             break;
         }

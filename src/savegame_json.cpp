@@ -5604,6 +5604,16 @@ void submap::store( JsonOut &jsout ) const
         jsout.end_array();
     }
 
+    if( !soil.empty() ) {
+        jsout.member( "soil" );
+        jsout.start_array();
+        for( const auto &elem : soil ) {
+            jsout.write( elem.first );
+            elem.second.serialize( jsout );
+        }
+        jsout.end_array();
+    }
+
     // Output base camp if any
     if( camp ) {
         jsout.member( "camp", *camp );
@@ -5929,5 +5939,14 @@ void submap::load( const JsonValue &jv, const std::string &member_name, int vers
     } else if( member_name == "camp" ) {
         camp = std::make_unique<basecamp>();
         camp->deserialize( jv );
+    } else if( member_name == "soil" ) {
+        if( jv.test_array() ) {
+            JsonArray soil_json = jv;
+            while( soil_json.has_more() ) {
+                point_sm_ms loc;
+                soil_json.next_value().read( loc );
+                soil[loc].deserialize( soil_json.next_object() );
+            }
+        }
     }
 }

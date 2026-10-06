@@ -29,6 +29,7 @@
 #include "mapgen_primitives.h"
 #include "mdarray.h"
 #include "point.h"
+#include "soil.h"
 #include "trap.h"
 #include "type_id.h"
 #include "units.h"
@@ -321,6 +322,8 @@ class submap
          */
         std::vector<std::unique_ptr<vehicle>> vehicles;
         std::map<tripoint_sm_ms, partial_con> partial_constructions;
+        // Realistic farming: what each farm plot on this submap remembers between crops.
+        std::map<point_sm_ms, soil_state> soil;
         std::unique_ptr<basecamp> camp;  // only allowing one basecamp per submap
 
         struct tile_data {

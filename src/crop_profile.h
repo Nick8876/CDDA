@@ -56,6 +56,18 @@ class crop_profile
         units::temperature heat_stress_temp = units::from_celsius( 35.0 );
         /** Botanical family, used for crop rotation and disease. */
         std::string family = "none";
+        /**
+         * How thirsty the crop is compared with a typical vegetable at full canopy (crop coefficient
+         * multiplier): 1.0 is average, 0.4 a cactus, 1.2 rice.
+         */
+        double water_use = 1.0;
+        /**
+         * Fraction of the soil's available water the crop can use up before it starts to suffer
+         * (FAO-56 "p"): 0.3 for shallow-rooted lettuce, 0.5 typical, 0.8 for a cactus.
+         */
+        double drought_tolerance = 0.5;
+        /** Grows in standing water without its roots rotting (rice, cattails). */
+        bool flood_tolerant = false;
 
         /** Growing degree days (C) gained in a day with this low and high. */
         double degree_days( double low_c, double high_c ) const;

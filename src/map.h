@@ -75,6 +75,7 @@ class vehicle;
 class zone_data;
 struct fragment_cloud;
 struct partial_con;
+struct soil_state;
 struct spawn_data;
 struct trap;
 template<typename Tripoint>
@@ -2250,6 +2251,8 @@ class map
         void process_items();
         /** Realistic farming: bring every loaded crop up to date with the weather. */
         void process_crops();
+        /** Realistic farming: what the farm plot at this tile remembers; created on first use. */
+        soil_state &get_soil( const tripoint_bub_ms &p );
         // All active items connected to the power_grid with their connection points.
         std::vector<item_reference> item_network_connections( vehicle *power_grid );
     private:

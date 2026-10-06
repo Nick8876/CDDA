@@ -62,6 +62,9 @@ void crop_profile::load( const JsonObject &jo, std::string_view )
     }
     optional( jo, was_loaded, "heat_stress_temp", heat_stress_temp, units::from_celsius( 35.0 ) );
     optional( jo, was_loaded, "family", family, "none" );
+    optional( jo, was_loaded, "water_use", water_use, 1.0 );
+    optional( jo, was_loaded, "drought_tolerance", drought_tolerance, 0.5 );
+    optional( jo, was_loaded, "flood_tolerant", flood_tolerant, false );
 }
 
 void crop_profile::check() const
@@ -74,6 +77,12 @@ void crop_profile::check() const
     }
     if( frost_kill_temp > frost_damage_temp ) {
         debugmsg( "crop_profile %s: frost_kill_temp must not be above frost_damage_temp", id.str() );
+    }
+    if( water_use <= 0.0 ) {
+        debugmsg( "crop_profile %s: water_use must be positive", id.str() );
+    }
+    if( drought_tolerance <= 0.0 || drought_tolerance >= 1.0 ) {
+        debugmsg( "crop_profile %s: drought_tolerance must be between 0 and 1", id.str() );
     }
     if( hardened_kill_temp > frost_kill_temp ) {
         debugmsg( "crop_profile %s: hardened_kill_temp must not be above frost_kill_temp", id.str() );
