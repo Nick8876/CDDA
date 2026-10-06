@@ -43,6 +43,7 @@
 #include "drawing_primitives.h"
 #include "enums.h"
 #include "explosion.h"
+#include "farming.h"
 #include "field.h"
 #include "field_type.h"
 #include "flag.h"
@@ -9546,6 +9547,12 @@ void map::grow_plant( const tripoint_bub_ms &p )
         return;
     }
 
+    // Realistic farming: bring the plant up to date with the weather first.  It may die.
+    if( farming::enabled() && !farming::simulate_plant( *this, p, *seed ) ) {
+        return;
+    }
+    const time_duration plant_age = farming::enabled() ? farming::growth_age( *seed ) : seed->age();
+
     const std::vector<std::pair<flag_id, time_duration>> &growth_stages =
                 seed->type->seed->get_growth_stages();
 
@@ -9559,7 +9566,7 @@ void map::grow_plant( const tripoint_bub_ms &p )
         if( has_flag_furn( pair.first.str(), p ) ) {
             current_stage = pair.first;
         }
-        if( seed->age() >= time_to_grow_to_this_stage ) {
+        if( plant_age >= time_to_grow_to_this_stage ) {
             target_stage = pair.first;
         } // Don't break the loop for the case where time has been rewound.
         // Advance to the time of the next stage for the next iteration.
@@ -9580,7 +9587,7 @@ void map::grow_plant( const tripoint_bub_ms &p )
                    "Checking growth on a %s, aged %s. Current stage: %s. Target stage: %s. Advancing %d stages.",
                    // Human readable time please. '7863287 s' from to_string_writable() is not a reasonable output.
                    //NOLINTNEXTLINE(cata-translations-in-debug-messages)
-                   seed->tname(), to_string( seed->age() ), current_stage.c_str(), target_stage.c_str(),
+                   seed->tname(), to_string( plant_age ), current_stage.c_str(), target_stage.c_str(),
                    stages_to_advance );
 
     if( stages_to_advance <= 0 ) {
@@ -9601,6 +9608,34 @@ void map::grow_plant( const tripoint_bub_ms &p )
         // Get an updated reference to the furniture each time we go through this loop, to make sure we transform each step in turn
         const furn_t &current_furn = this->furn( p ).obj();
         furn_set( p, furn_str_id( current_furn.plant->transform ) );
+    }
+}
+
+void map::process_crops()
+{
+    if( !farming::enabled() ) {
+        return;
+    }
+    const int minz = zlevels ? -OVERMAP_DEPTH : abs_sub.z();
+    const int maxz = zlevels ? OVERMAP_HEIGHT : abs_sub.z();
+    for( int gz = minz; gz <= maxz; ++gz ) {
+        for( int gx = 0; gx < my_MAPSIZE; ++gx ) {
+            for( int gy = 0; gy < my_MAPSIZE; ++gy ) {
+                const tripoint_rel_sm grid( gx, gy, gz );
+                const submap *const sm = get_submap_at_grid( grid );
+                if( sm == nullptr || sm->is_uniform() ) {
+                    continue;
+                }
+                for( int x = 0; x < SEEX; ++x ) {
+                    for( int y = 0; y < SEEY; ++y ) {
+                        if( !sm->get_furn( point_sm_ms( x, y ) )->has_flag( ter_furn_flag::TFLAG_PLANT ) ) {
+                            continue;
+                        }
+                        grow_plant( rebase_bub( coords::project_to<coords::ms>( grid ) + point( x, y ) ) );
+                    }
+                }
+            }
+        }
     }
 }
 

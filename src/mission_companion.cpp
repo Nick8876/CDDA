@@ -35,6 +35,7 @@
 #include "enums.h"
 #include "faction.h"
 #include "faction_camp.h"
+#include "farming.h"
 #include "flexbuffer_json.h"
 #include "game.h"
 #include "horde_entity.h"
@@ -1650,6 +1651,7 @@ void talk_function::field_plant( npc &p, const std::string &place )
                 used_seed = player_character.use_amount( seed_id, 1 );
             }
             used_seed.front().set_age( 0_turns );
+            farming::on_planted( used_seed.front() );
             bay.add_item_or_charges( plot, used_seed.front() );
             bay.set( plot, ter_t_dirt, furn_f_plant_seed );
             limiting_number--;

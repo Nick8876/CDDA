@@ -1278,6 +1278,10 @@ struct islot_seed {
          * Terrain tag required to plant the seed.
          */
         ter_furn_flag required_terrain_flag = ter_furn_flag::TFLAG_PLANTABLE;
+        /**
+         * How this crop responds to temperature, water and soil.
+         */
+        crop_profile_id crop_profile = crop_profile_id( "crop_generic" );
         islot_seed() = default;
 
         const std::vector<std::pair<flag_id, time_duration>> &get_growth_stages() const;

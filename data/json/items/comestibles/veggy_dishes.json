@@ -1281,6 +1281,7 @@
     "petfood": [ "CATTLEFOOD" ],
     "flags": [ "EDIBLE_FROZEN", "RAW", "INEDIBLE", "CATTLE", "PLANTABLE_SEED", "NUTRIENT_OVERRIDE" ],
     "plant_name": "corn",
+    "crop_profile": "crop_corn",
     "fruit": "corn",
     "seeds": false,
     "byproducts": [ "withered" ],

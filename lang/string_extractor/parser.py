@@ -129,6 +129,7 @@ parsers = {
     "construction": parse_construction,
     "construction_category": parse_construction_category,
     "construction_group": parse_construction_group,
+    "crop_profile": dummy_parser,
     "damage_info_order": parse_damage_info_order,
     "damage_type": parse_damage_type,
     "dimension": dummy_parser,

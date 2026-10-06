@@ -25,6 +25,14 @@ struct w_point {
     tripoint_abs_ms location;
 };
 
+/** The normal weather for a day, without the day-to-day random swings. */
+struct typical_weather_day {
+    units::temperature low = units::from_celsius( 0.0 );
+    units::temperature high = units::from_celsius( 0.0 );
+    /** How far (C) the random day-to-day variation can push temperatures away from normal. */
+    double noise_amplitude_c = 0;
+};
+
 class weather_generator
 {
     public:
@@ -75,6 +83,9 @@ class weather_generator
         void sort_weather();
         units::temperature get_weather_temperature( const tripoint_abs_ms &, const time_point &,
                 unsigned ) const;
+        /** Climate normals for the day containing the given time: what a local farmer would expect. */
+        typical_weather_day get_typical_day( const tripoint_abs_ms &, const time_point &,
+                                             unsigned ) const;
 
         bool was_loaded = false;
         void load( const JsonObject &jo, std::string_view );

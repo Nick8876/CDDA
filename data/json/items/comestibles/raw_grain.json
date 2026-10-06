@@ -41,6 +41,7 @@
     "petfood": [ "CATTLEFOOD" ],
     "flags": [ "EDIBLE_FROZEN", "EATEN_HOT", "RAW", "INEDIBLE", "CATTLE", "PLANTABLE_SEED", "BIRD", "RAT", "MOUSE" ],
     "plant_name": "corn",
+    "crop_profile": "crop_corn",
     "fruit": "corn",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -98,6 +99,7 @@
     "petfood": [ "CATTLEFOOD", "BIRDFOOD" ],
     "flags": [ "NUTRIENT_OVERRIDE", "EATEN_HOT", "RAW", "PLANTABLE_SEED", "CATTLE", "BIRD", "RAT", "MOUSE" ],
     "plant_name": "popcorn",
+    "crop_profile": "crop_corn",
     "fruit": "popcorn_cob",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -131,6 +133,7 @@
     "flags": [ "NUTRIENT_OVERRIDE", "EDIBLE_FROZEN", "PLANTABLE_SEED", "INEDIBLE", "CATTLE", "BIRD", "RAT", "MOUSE" ],
     "vitamins": [ [ "junk_allergen", 1 ] ],
     "plant_name": "popcorn",
+    "crop_profile": "crop_corn",
     "fruit": "popcorn_cob",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -343,6 +346,7 @@
       "NUTRIENT_OVERRIDE"
     ],
     "plant_name": "wheat",
+    "crop_profile": "crop_small_grain",
     "fruit": "wheat_stalks",
     "seeds": false,
     "growth_stages": [
@@ -450,6 +454,7 @@
       "NUTRIENT_OVERRIDE"
     ],
     "plant_name": "barley",
+    "crop_profile": "crop_small_grain",
     "fruit": "barley_stalks",
     "seeds": false,
     "growth_stages": [
@@ -531,6 +536,7 @@
       "MOUSE"
     ],
     "plant_name": "oats",
+    "crop_profile": "crop_small_grain",
     "fruit": "oat_stalks",
     "seeds": false,
     "growth_stages": [
@@ -581,6 +587,7 @@
     "petfood": [ "CATTLEFOOD", "BIRDFOOD" ],
     "flags": [ "EDIBLE_FROZEN", "RAW", "INEDIBLE", "CATTLE", "PLANTABLE_SEED", "CUT_HARVEST", "BIRD", "RAT", "MOUSE" ],
     "plant_name": "wild rice",
+    "crop_profile": "crop_wild_rice",
     "fruit": "wild_rice_stalks",
     "seeds": false,
     "growth_stages": [
@@ -624,6 +631,7 @@
       "NUTRIENT_OVERRIDE"
     ],
     "plant_name": "buckwheat",
+    "crop_profile": "crop_buckwheat",
     "fruit": "buckwheat_stalks",
     "seeds": false,
     "growth_stages": [
@@ -711,6 +719,7 @@
       "MOUSE"
     ],
     "plant_name": "canola",
+    "crop_profile": "crop_brassica_seed",
     "fruit": "canola_stalks",
     "seeds": false,
     "growth_stages": [
@@ -773,6 +782,7 @@
     "petfood": [ "CATTLEFOOD", "BIRDFOOD" ],
     "flags": [ "EDIBLE_FROZEN", "RAW", "INEDIBLE", "NUTRIENT_OVERRIDE", "CATTLE", "PLANTABLE_SEED", "BIRD", "RAT", "MOUSE" ],
     "plant_name": "lentils",
+    "crop_profile": "crop_pea",
     "fruit": "dry_lentil_stalks",
     "seeds": false,
     "growth_stages": [

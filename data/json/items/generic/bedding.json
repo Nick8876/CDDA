@@ -64,6 +64,7 @@
     "warmth": 10,
     "material_thickness": 0.1,
     "flags": [
+      "FROST_COVER",
       "OVERSIZE",
       "OUTER",
       "ALLOWS_NATURAL_ATTACKS",
@@ -131,6 +132,7 @@
     "material_thickness": 1,
     "environmental_protection": 1,
     "flags": [
+      "FROST_COVER",
       "OVERSIZE",
       "OUTER",
       "ALLOWS_NATURAL_ATTACKS",

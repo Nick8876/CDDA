@@ -39,6 +39,7 @@
 #include "debug.h"
 #include "enums.h"
 #include "faction.h"
+#include "farming.h"
 #include "flag.h"
 #include "game.h"
 #include "game_constants.h"
@@ -3554,6 +3555,7 @@ std::pair<size_t, std::string> basecamp::farm_action( const point_rel_omt &dir, 
                             }
                         }
                         used_seed.front().set_age( 0_turns );
+                        farming::on_planted( used_seed.front() );
                         farm_map.add_item_or_charges( pos, used_seed.front() );
                         farm_map.set( pos, ter_t_dirt, furn_f_plant_seed );
                         if( !tmp_seed->count_by_charges() ) {

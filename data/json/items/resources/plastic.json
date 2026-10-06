@@ -142,7 +142,7 @@
     "symbol": ")",
     "color": "light_blue",
     "use_action": { "type": "deploy_furn", "furn_type": "f_plastic_groundsheet" },
-    "flags": [ "NO_SALVAGE" ]
+    "flags": [ "NO_SALVAGE", "FROST_COVER" ]
   },
   {
     "id": "plastic_sheet_small",

@@ -561,6 +561,9 @@ bool game::do_turn()
     mission::process_all();
     avatar &u = get_avatar();
     map &m = get_map();
+    if( calendar::once_every( 1_hours ) ) {
+        m.process_crops();
+    }
     // If controlling a vehicle that is owned by someone else
     if( u.in_vehicle && u.controlling_vehicle ) {
         vehicle *veh = veh_pointer_or_null( m.veh_at( u.pos_bub() ) );

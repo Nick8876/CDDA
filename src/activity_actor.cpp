@@ -58,6 +58,7 @@
 #include "event.h"
 #include "event_bus.h"
 #include "faction.h"
+#include "farming.h"
 #include "fault.h"
 #include "field_type.h"
 #include "flag.h"
@@ -7531,6 +7532,7 @@ void plant_seed_activity_actor::finish( player_activity &act, Character &who )
     }
     if( !used_seed.empty() ) {
         used_seed.front().set_age( 0_turns );
+        farming::on_planted( used_seed.front() );
         if( used_seed.front().has_var( "activity_var" ) ) {
             used_seed.front().erase_var( "activity_var" );
         }
@@ -10565,8 +10567,12 @@ void fertilize_plant_activity_actor::finish( player_activity &act, Character &wh
         return;
     }
 
-    // TODO: item should probably clamp the value on its own
-    seed->set_birthday( seed->birthday() - fertilizerEpoch );
+    if( farming::enabled() ) {
+        farming::add_growth( *seed, fertilizerEpoch );
+    } else {
+        // TODO: item should probably clamp the value on its own
+        seed->set_birthday( seed->birthday() - fertilizerEpoch );
+    }
     // The plant furniture has the NOITEM token which prevents adding items on that square,
     // spawned items are moved to an adjacent field instead, but the fertilizer token
     // must be on the square of the plant, therefore this hack:

@@ -70,6 +70,9 @@ using clothing_mod_id = string_id<clothing_mod>;
 struct crafting_category;
 using crafting_category_id = string_id<crafting_category>;
 
+class crop_profile;
+using crop_profile_id = string_id<crop_profile>;
+
 struct effect_on_condition;
 using effect_on_condition_id = string_id<effect_on_condition>;
 

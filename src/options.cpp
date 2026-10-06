@@ -2913,6 +2913,13 @@ void options_manager::add_options_world_default()
              to_translation( "If true, spawn zombies at shelters.  Makes the starting game a lot harder." ),
              false
            );
+
+        add( "FARMING_SIMULATION", page_id, to_translation( "Realistic farming" ),
+             to_translation( "If true, crops grow with the weather: warmth speeds them up, frost and "
+                             "heat damage them, and the local climate decides when it's safe to plant.  "
+                             "If false, crops grow on a fixed timer." ),
+             true
+           );
     } );
 
     add_empty_line();

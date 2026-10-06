@@ -67,6 +67,7 @@
       [ "gloves_rubber", 60 ],
       [ "fertilizer_liquid", 20 ],
       { "group": "fertilizer_commercial_bag_canvas_60", "prob": 30 },
+      [ "row_cover", 40 ],
       [ "fungicide", 20 ],
       { "group": "insecticide_bag_plastic", "prob": 30 },
       { "group": "saltpeter_canvas_bag_part", "prob": 15 },

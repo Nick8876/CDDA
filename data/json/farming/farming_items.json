@@ -1,0 +1,17 @@
+[
+  {
+    "id": "row_cover",
+    "type": "ITEM",
+    "category": "tools",
+    "name": { "str": "row cover" },
+    "description": "A few square meters of thin, white, spun polypropylene fabric, sold in garden stores as frost cloth.  Spread over a garden bed, it traps the ground's warmth on cold nights and keeps young plants a few degrees above the air temperature, while still letting most of the light through.",
+    "weight": "120 g",
+    "volume": "250 ml",
+    "price": "8 USD",
+    "price_postapoc": "50 cent",
+    "material": [ "plastic" ],
+    "symbol": ")",
+    "color": "white",
+    "flags": [ "FROST_COVER" ]
+  }
+]

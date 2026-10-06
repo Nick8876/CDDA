@@ -1619,6 +1619,11 @@
     "type": "json_flag"
   },
   {
+    "id": "FROST_COVER",
+    "type": "json_flag",
+    "//": "Can be spread over a growing crop to protect it from frost (realistic farming)."
+  },
+  {
     "id": "FLAMING",
     "type": "json_flag"
   },

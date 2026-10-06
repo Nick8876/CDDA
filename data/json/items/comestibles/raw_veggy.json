@@ -615,6 +615,7 @@
     "fun": -3,
     "vitamins": [ [ "vitC", "900 μg" ], [ "iron", "100 μg" ], [ "calcium", "5400 μg" ], [ "veggy_allergen", 1 ] ],
     "plant_name": "garlic",
+    "crop_profile": "crop_garlic",
     "fruit": "garlic",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1198,6 +1199,7 @@
     "petfood": [ "CATTLEFOOD" ],
     "flags": [ "EDIBLE_FROZEN", "RAW", "INEDIBLE", "CATTLE", "PLANTABLE_SEED" ],
     "plant_name": "beans",
+    "crop_profile": "crop_bean",
     "fruit": "raw_beans",
     "seeds": false,
     "byproducts": [ "withered" ],

@@ -160,6 +160,26 @@ units::temperature weather_generator::get_weather_temperature(
     return weather_temperature_from_common_data( *this, get_common_data( location, real_t, seed ),
             season_effective_time( real_t ) );
 }
+typical_weather_day weather_generator::get_typical_day( const tripoint_abs_ms &location,
+        const time_point &real_t, unsigned seed ) const
+{
+    const weather_gen_common common = get_common_data( location, real_t, seed );
+    const double seasonality = -common.cyf;
+    const std::array<int, 4> seasonal_temp_mod = {
+        spring_temp_manual_mod, summer_temp_manual_mod, autumn_temp_manual_mod,
+        winter_temp_manual_mod
+    };
+    const double mean = base_temperature + seasonal_temp_mod[common.season] +
+                        seasonality * seasonality_magnitude_K;
+    const double daily_swing = daily_magnitude_K + daily_seasonal_range_K * ( -seasonality + 1 ) / 2;
+    typical_weather_day result;
+    result.low = units::from_celsius( mean - daily_swing );
+    result.high = units::from_celsius( mean + daily_swing );
+    result.noise_amplitude_c = ( 1 + ( 1 + -seasonality ) * seasonal_noise_magnitude / 2 ) *
+                               noise_magnitude_K;
+    return result;
+}
+
 w_point weather_generator::get_weather( const tripoint_abs_ms &location, const time_point &real_t,
                                         unsigned seed ) const
 {

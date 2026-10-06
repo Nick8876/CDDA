@@ -21,6 +21,7 @@
 #include "debug.h"
 #include "effect_on_condition.h"
 #include "enums.h"
+#include "farming.h"
 #include "game.h"
 #include "item.h"
 #include "item_contents.h"
@@ -912,7 +913,7 @@ static units::temperature highest_temp_on_day( time_point &base_date, const trip
     return highest_temp;
 }
 
-static bool has_sunlight_access( const tripoint_bub_ms &pos )
+bool has_sunlight_access( const tripoint_bub_ms &pos )
 {
     tripoint_bub_ms checked_pnt = pos;
     const map &here = get_map();
@@ -962,6 +963,12 @@ ret_val<void> warm_enough_to_plant( const tripoint_bub_ms &pos, const itype_id &
 
     if( !has_sunlight_access( pos ) ) {
         return ret_val<void>::make_failure( _( "Plants need sunlight to grow!  You can't plant there." ) );
+    }
+
+    // Realistic farming judges the local climate instead of the actual future weather.
+    // Whoever plants for us (NPCs, farm zones, camps) knows the climate well.
+    if( farming::enabled() ) {
+        return farming::planting_outlook( get_map(), pos, it, 10 );
     }
 
     if( get_map().ter( pos ).id() == ter_t_greenhouse_tilled ) {

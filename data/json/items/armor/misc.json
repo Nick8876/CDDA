@@ -261,7 +261,7 @@
     "warmth": 10,
     "material_thickness": 0.1,
     "environmental_protection": 1,
-    "flags": [ "OVERSIZE", "OUTER", "WATERPROOF", "ALLOWS_NATURAL_ATTACKS" ],
+    "flags": [ "OVERSIZE", "OUTER", "WATERPROOF", "ALLOWS_NATURAL_ATTACKS", "FROST_COVER" ],
     "armor": [
       {
         "encumbrance": 30,

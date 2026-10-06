@@ -44,6 +44,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "31 ml",
     "plant_name": "hops",
+    "crop_profile": "crop_hops",
     "fruit": "hops",
     "byproducts": [ "straw_pile" ],
     "growth_stages": [
@@ -63,6 +64,7 @@
     "description": "Some blackberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "blackberry",
+    "crop_profile": "crop_perennial_rose",
     "fruit": "blackberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -83,6 +85,7 @@
     "description": "Some blueberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "blueberry",
+    "crop_profile": "crop_perennial_heath",
     "fruit": "blueberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -103,6 +106,7 @@
     "description": "Some cranberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "cranberry",
+    "crop_profile": "crop_perennial_heath",
     "fruit": "cranberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -123,6 +127,7 @@
     "description": "Some huckleberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "huckleberry",
+    "crop_profile": "crop_perennial_heath",
     "fruit": "huckleberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -143,6 +148,7 @@
     "description": "Some mulberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "mulberry",
+    "crop_profile": "crop_perennial_fruit",
     "fruit": "mulberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -163,6 +169,7 @@
     "description": "Some elderberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "elderberry",
+    "crop_profile": "crop_perennial_fruit",
     "fruit": "elderberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -183,6 +190,7 @@
     "description": "Some raspberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "raspberry",
+    "crop_profile": "crop_perennial_rose",
     "fruit": "raspberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -203,6 +211,7 @@
     "description": "Some strawberry seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "strawberry",
+    "crop_profile": "crop_perennial_rose",
     "fruit": "strawberries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -223,6 +232,7 @@
     "description": "Some grape seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "grape",
+    "crop_profile": "crop_perennial_fruit",
     "fruit": "grapes",
     "seeds": false,
     "byproducts": [ "grape_leaves", "withered" ],
@@ -245,6 +255,7 @@
     "description": "Some rose seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "rose",
+    "crop_profile": "crop_perennial_rose",
     "fruit": "rose_hips",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -265,6 +276,7 @@
     "description": "Some tobacco seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "tobacco",
+    "crop_profile": "crop_nightshade_leaf",
     "fruit": "tobacco_raw",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -284,6 +296,7 @@
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "description": "This pile of dried barley is earmarked for planting.",
     "plant_name": "barley",
+    "crop_profile": "crop_small_grain",
     "fruit": "barley_stalks",
     "seeds": false,
     "growth_stages": [
@@ -308,6 +321,7 @@
     "weight": "5 g",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "sugar beet",
+    "crop_profile": "crop_beet",
     "fruit": "sugar_beet",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -327,6 +341,7 @@
     "description": "Some lettuce seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "lettuce",
+    "crop_profile": "crop_lettuce",
     "fruit": "lettuce_head",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -348,6 +363,7 @@
     "description": "Some white cabbage seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "cabbage",
+    "crop_profile": "crop_brassica_hardy",
     "fruit": "cabbage_head",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -369,6 +385,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "//": "Wikipedia says 3-4 weeks or 6-7 weeks in the cold",
     "plant_name": "radish",
+    "crop_profile": "crop_radish",
     "fruit": "radish_taproot",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -389,6 +406,7 @@
     "description": "Some tomato seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "tomato",
+    "crop_profile": "crop_nightshade_fruit",
     "fruit": "tomato",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -412,6 +430,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "6 ml",
     "plant_name": "cotton",
+    "crop_profile": "crop_cotton",
     "fruit": "cotton_boll",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -434,6 +453,7 @@
     "description": "Some broccoli seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "broccoli",
+    "crop_profile": "crop_brassica_head",
     "fruit": "broccoli",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -454,6 +474,7 @@
     "description": "Some zucchini seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "zucchini",
+    "crop_profile": "crop_cucurbit",
     "fruit": "zucchini",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -475,6 +496,7 @@
     "description": "Some onion seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "onion",
+    "crop_profile": "crop_onion",
     "fruit": "onion",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -495,6 +517,7 @@
     "description": "Some garlic seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "garlic",
+    "crop_profile": "crop_garlic",
     "fruit": "garlic",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -515,6 +538,7 @@
     "description": "Some cattail seeds.  Must be planted in shallow water.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "cattail",
+    "crop_profile": "crop_aquatic",
     "fruit": "cattail_stalk",
     "byproducts": [ "cattail_rhizome" ],
     "growth_stages": [
@@ -543,6 +567,7 @@
     "description": "Some lotus seeds, which can be used for planting, or cooked and eaten after picking off the bitter internal ingredients.  Must be planted in shallow water.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE", "RAW" ],
     "plant_name": "lotus",
+    "crop_profile": "crop_aquatic",
     "fruit": "lotus_rhizome",
     "seeds": true,
     "byproducts": [ "withered", "lotus" ],
@@ -583,6 +608,7 @@
     "description": "Some dahlia seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "dahlia",
+    "crop_profile": "crop_dahlia",
     "fruit": "dahlia_root",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -604,6 +630,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "salsify",
+    "crop_profile": "crop_aster_root",
     "fruit": "salsify_raw",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -624,6 +651,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "chicory",
+    "crop_profile": "crop_lettuce",
     "fruit": "chicory_raw",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -644,6 +672,7 @@
     "description": "Some seeds from a white flower.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "wild root",
+    "crop_profile": "crop_carrot",
     "fruit": "carrot_wild",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -664,6 +693,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "description": "Some small decorative plant seeds, likely grass or flower.  Don't expect them to be useful for anything other than dry plant material.",
     "plant_name": "decorative plant",
+    "crop_profile": "crop_generic",
     "fruit": "withered",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -683,6 +713,7 @@
     "description": "Some cactus seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "cactus",
+    "crop_profile": "crop_cactus",
     "fruit": "cactus_pad",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -702,6 +733,7 @@
     "description": "Some carrot seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "carrot",
+    "crop_profile": "crop_carrot",
     "fruit": "carrot",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -722,6 +754,7 @@
     "description": "A pile of dried corn, designated for planting.  It could just as easily become food.",
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "plant_name": "corn",
+    "crop_profile": "crop_corn",
     "fruit": "corn",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -746,6 +779,7 @@
     "description": "Some chili pepper seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "chili pepper",
+    "crop_profile": "crop_nightshade_fruit",
     "fruit": "chili_pepper",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -767,6 +801,7 @@
     "description": "Some salad cucumber seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "salad cucumber",
+    "crop_profile": "crop_cucurbit",
     "fruit": "cucumber",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -787,6 +822,7 @@
     "description": "Some gherkin cucumber seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "gherkin cucumber",
+    "crop_profile": "crop_cucurbit",
     "fruit": "gherkin",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -813,6 +849,7 @@
     "description": "A quarter section of a potato, cut up for planting.",
     "extend": { "flags": [ "INEDIBLE", "PLANTABLE_SEED", "NUTRIENT_OVERRIDE" ] },
     "plant_name": "potatoes",
+    "crop_profile": "crop_potato",
     "fruit": "potato",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -838,6 +875,7 @@
     "price": "1 cent",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE" ],
     "plant_name": "mutated poppy flower",
+    "crop_profile": "crop_poppy",
     "fruit": "poppy_bud",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -867,6 +905,7 @@
     "price": "1 cent",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "cannabis",
+    "crop_profile": "crop_cannabis",
     "fruit": "cannabis",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -891,6 +930,7 @@
     "fruit": "null",
     "//": "dummy entry, results are hardcoded",
     "plant_name": "fungal flower",
+    "crop_profile": "crop_mycus",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
       { "GROWTH_SEEDLING": "23 days" },
@@ -925,6 +965,7 @@
     "fruit": "null",
     "//": "dummy entry, results are hardcoded",
     "plant_name": "Marloss berry",
+    "crop_profile": "crop_mycus",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
       { "GROWTH_SEEDLING": "23 days" },
@@ -944,6 +985,7 @@
     "extend": { "flags": [ "NUTRIENT_OVERRIDE", "INEDIBLE" ] },
     "description": "Dry beans, ready for planting.",
     "plant_name": "beans",
+    "crop_profile": "crop_bean",
     "fruit": "raw_beans",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -966,6 +1008,7 @@
     "description": "A pile of dry soybeans.  These are intended for planting, but there's no reason they couldn't be made into food.",
     "price": "90 cent",
     "plant_name": "soybean",
+    "crop_profile": "crop_bean",
     "fruit": "raw_edamame",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -990,6 +1033,7 @@
     "description": "Dried lentils, ready for planting.",
     "extend": { "flags": [ "NUTRIENT_OVERRIDE", "INEDIBLE" ] },
     "plant_name": "lentils",
+    "crop_profile": "crop_pea",
     "fruit": "dry_lentil_stalks",
     "seeds": false,
     "growth_stages": [
@@ -1012,6 +1056,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "thyme",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "thyme",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -1030,6 +1075,7 @@
     "description": "Some watermelon seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "watermelon",
+    "crop_profile": "crop_cucurbit",
     "fruit": "watermelon",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1050,6 +1096,7 @@
     "description": "Some cantaloupe melon seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "cantaloupe",
+    "crop_profile": "crop_cucurbit",
     "fruit": "melon",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1076,6 +1123,7 @@
     "price": "1 USD",
     "flags": [ "PLANTABLE_SEED" ],
     "plant_name": "pumpkin",
+    "crop_profile": "crop_cucurbit",
     "fruit": "pumpkin",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1104,6 +1152,7 @@
     "price": "1 cent",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE" ],
     "plant_name": "sunflower",
+    "crop_profile": "crop_sunflower",
     "fruit": "seed_sunflower",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1127,6 +1176,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "dogbane",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "dogbane",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1148,6 +1198,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "bee balm",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "bee_balm",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1169,6 +1220,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "mugwort",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "mugwort",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -1189,6 +1241,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "spinach",
+    "crop_profile": "crop_spinach",
     "fruit": "spinach",
     "growth_stages": [
       { "GROWTH_SEED": "13 days" },
@@ -1208,6 +1261,7 @@
     "category": "seeds",
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "plant_name": "buckwheat",
+    "crop_profile": "crop_buckwheat",
     "fruit": "buckwheat_stalks",
     "seeds": false,
     "growth_stages": [
@@ -1231,6 +1285,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "wild herb",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "wild_herbs",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -1251,6 +1306,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "wild vegetable",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "veggy_wild",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1272,6 +1328,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "dandelion",
+    "crop_profile": "crop_aster_root",
     "fruit": "raw_dandelion",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -1292,6 +1349,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "burdock",
+    "crop_profile": "crop_aster_root",
     "fruit": "raw_burdock",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -1311,6 +1369,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "Japanese knotweed",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "japanese_knotweed_stem",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1332,6 +1391,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "25 ml",
     "plant_name": "wild rice",
+    "crop_profile": "crop_wild_rice",
     "fruit": "wild_rice_stalks",
     "seeds": false,
     "growth_stages": [
@@ -1352,6 +1412,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "Jerusalem artichoke",
+    "crop_profile": "crop_perennial_vegetable",
     "fruit": "jerusalem_artichoke",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1372,6 +1433,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "starry false Solomon's seal",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "m_stellatum_berries",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1393,6 +1455,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "wild sarsaparilla",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "wild_sarsaparilla_root",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1412,6 +1475,7 @@
     "description": "Some mayapple seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "mayapple",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "mayapple",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1432,6 +1496,7 @@
     "description": "Some wintergreen seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "wintergreen",
+    "crop_profile": "crop_perennial_heath",
     "fruit": "wintergreen_berry",
     "seeds": false,
     "byproducts": [ "wintergreen_leaves", "withered" ],
@@ -1453,6 +1518,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "groundnut",
+    "crop_profile": "crop_perennial_vegetable",
     "fruit": "groundnut",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1473,6 +1539,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "wild garlic",
+    "crop_profile": "crop_garlic",
     "fruit": "wild_garlic",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1494,6 +1561,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE", "CUT_HARVEST" ],
     "volume": "2 ml",
     "plant_name": "bamboo",
+    "crop_profile": "crop_bamboo",
     "fruit": "raw_bamboo",
     "growth_stages": [
       { "GROWTH_SEED": "23 days" },
@@ -1514,6 +1582,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "rhubarb",
+    "crop_profile": "crop_perennial_vegetable",
     "fruit": "rhubarb",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1532,6 +1601,7 @@
     "name": { "str_sp": "mushroom spores" },
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "mushroom",
+    "crop_profile": "crop_mushroom",
     "fruit": "mushroom",
     "seeds": false,
     "growth_stages": [
@@ -1551,6 +1621,7 @@
     "description": "Some morel mushroom spores.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "morel mushroom",
+    "crop_profile": "crop_mushroom",
     "fruit": "mushroom_morel",
     "seeds": false,
     "growth_stages": [
@@ -1577,6 +1648,7 @@
     "use_action": [ "DATURA" ],
     "flags": [ "PLANTABLE_SEED" ],
     "plant_name": "datura",
+    "crop_profile": "crop_nightshade_leaf",
     "fruit": "datura_seed",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1597,6 +1669,7 @@
     "description": "Some celery seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "celery",
+    "crop_profile": "crop_celery",
     "fruit": "celery",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1617,6 +1690,7 @@
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "category": "seeds",
     "plant_name": "oats",
+    "crop_profile": "crop_small_grain",
     "fruit": "oat_stalks",
     "seeds": false,
     "growth_stages": [
@@ -1639,6 +1713,7 @@
     "description": "Several cloves of garlic, ready for planting.",
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "plant_name": "garlic",
+    "crop_profile": "crop_garlic",
     "fruit": "garlic",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1659,6 +1734,7 @@
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "description": "A pile of dry wheatberries, designated for planting.",
     "plant_name": "wheat",
+    "crop_profile": "crop_small_grain",
     "fruit": "wheat_stalks",
     "seeds": false,
     "growth_stages": [
@@ -1679,6 +1755,7 @@
     "name": { "str_sp": "red winter wheat seeds" },
     "description": "A pile of dry wheatberries, designated for planting.  This variety is meant to grow over winter, ready for harvest in the Spring.",
     "plant_name": "red winter wheat",
+    "crop_profile": "crop_winter_grain",
     "fruit": "red_winter_wheat_stalks",
     "seeds": false,
     "//COMMENT2": "Because of the way temperature checks currently work, this is *too generous* and lets them be planted literally whenever! Winter wheat is still supposed to be planted *before* winter, and then it survives the winter. But whatever, this is fine for the moment. It should all 'just work' if and when the temperature checks are improved.",
@@ -1782,6 +1859,7 @@
     "description": "Some chamomile seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "chamomile",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "chamomile",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1802,6 +1880,7 @@
     "description": "Some spurge seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "spurge",
+    "crop_profile": "crop_perennial_herb",
     "fruit": "spurge",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1823,6 +1902,7 @@
     "extend": { "flags": [ "NUTRIENT_OVERRIDE" ] },
     "description": "A bunch of dry unpopped corn.  It's intended for planting, but could be put to other uses.",
     "plant_name": "popcorn",
+    "crop_profile": "crop_corn",
     "fruit": "popcorn_cob",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1843,6 +1923,7 @@
     "description": "Some horseradish seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "horseradish",
+    "crop_profile": "crop_horseradish",
     "fruit": "horseradish_root",
     "byproducts": [ "horseradish_greens" ],
     "growth_stages": [
@@ -1868,6 +1949,7 @@
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "volume": "2 ml",
     "plant_name": "mustard",
+    "crop_profile": "crop_brassica_seed",
     "fruit": "seed_mustard",
     "byproducts": [ "withered" ],
     "growth_stages": [
@@ -1888,6 +1970,7 @@
     "description": "Some bell pepper seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "bell pepper",
+    "crop_profile": "crop_nightshade_fruit",
     "fruit": "bell_pepper",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1909,6 +1992,7 @@
     "description": "Some bottle gourd seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "bottle gourd",
+    "crop_profile": "crop_cucurbit",
     "fruit": "raw_bottle_gourd",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1930,6 +2014,7 @@
     "description": "Some eggplant seeds.",
     "flags": [ "PLANTABLE_SEED" ],
     "plant_name": "eggplant",
+    "crop_profile": "crop_nightshade_fruit",
     "fruit": "eggplant",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1951,6 +2036,7 @@
     "description": "Some cauliflower seeds.",
     "flags": [ "PLANTABLE_SEED" ],
     "plant_name": "cauliflower",
+    "crop_profile": "crop_brassica_head",
     "fruit": "cauliflower_head",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1971,6 +2057,7 @@
     "description": "Some artichoke seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "artichoke",
+    "crop_profile": "crop_artichoke",
     "fruit": "raw_artichoke",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -1992,6 +2079,7 @@
     "description": "Some asparagus seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "asparagus",
+    "crop_profile": "crop_perennial_vegetable",
     "fruit": "raw_asparagus",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -2013,6 +2101,7 @@
     "description": "Some brussels sprout seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "brussels sprout",
+    "crop_profile": "crop_brassica_hardy",
     "fruit": "brussels_sprout_stalk",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -2034,6 +2123,7 @@
     "description": "Some kale sprout seeds.",
     "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE", "INEDIBLE" ],
     "plant_name": "kale",
+    "crop_profile": "crop_brassica_hardy",
     "fruit": "kale_head",
     "seeds": false,
     "byproducts": [ "withered" ],
@@ -2056,6 +2146,7 @@
     "description": "Some fresh peas, ready for planting.",
     "extend": { "flags": [ "PLANTABLE_SEED", "NUTRIENT_OVERRIDE" ] },
     "plant_name": "pea",
+    "crop_profile": "crop_pea",
     "fruit": "pea_pods",
     "seeds": false,
     "growth_stages": [

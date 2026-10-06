@@ -2248,6 +2248,8 @@ class map
         void drop_bash_results( const map_data_common_t &ter_furn, const tripoint_bub_ms &p );
 
         void process_items();
+        /** Realistic farming: bring every loaded crop up to date with the weather. */
+        void process_crops();
         // All active items connected to the power_grid with their connection points.
         std::vector<item_reference> item_network_connections( vehicle *power_grid );
     private:

@@ -24,6 +24,7 @@
 #include "dialogue.h"
 #include "effect_on_condition.h"
 #include "enums.h"
+#include "farming.h"
 #include "flat_set.h"
 #include "game.h"
 #include "game_inventory.h"
@@ -1132,12 +1133,14 @@ void vehicle::operate_planter( map &here )
                 }
                 if( !i->count_by_charges() || i->charges == 1 ) {
                     i->set_age( 0_turns );
+                    farming::on_planted( *i );
                     here.add_item( loc, *i );
                     v.erase( i );
                 } else {
                     item tmp = *i;
                     tmp.charges = 1;
                     tmp.set_age( 0_turns );
+                    farming::on_planted( tmp );
                     here.add_item( loc, tmp );
                     i->charges--;
                 }

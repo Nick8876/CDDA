@@ -174,6 +174,9 @@ nc_color get_wind_color( double );
  */
 ret_val<void> warm_enough_to_plant( const tripoint_bub_ms &pos, const itype_id &it );
 
+/** Whether the tile gets direct sunlight: open sky above, or only transparent roofs. */
+bool has_sunlight_access( const tripoint_bub_ms &pos );
+
 bool is_wind_blocker( const tripoint_bub_ms &location );
 
 weather_type_id current_weather( const tripoint_abs_ms &location,

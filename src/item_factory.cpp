@@ -3836,6 +3836,7 @@ void islot_seed::deserialize( const JsonObject &jo )
     optional( jo, was_loaded, "byproducts", byproducts );
     optional( jo, was_loaded, "required_terrain_flag", required_terrain_flag,
               ter_furn_flag::TFLAG_PLANTABLE );
+    optional( jo, was_loaded, "crop_profile", crop_profile, crop_profile_id( "crop_generic" ) );
 }
 
 void islot_gunmod::deserialize( const JsonObject &jo )

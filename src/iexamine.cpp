@@ -39,6 +39,7 @@
 #include "event.h"
 #include "event_bus.h"
 #include "faction.h"
+#include "farming.h"
 #include "field_type.h"
 #include "flag.h"
 #include "flat_set.h" // IWYU pragma: keep
@@ -141,6 +142,8 @@ static const efftype_id effect_tetanus( "tetanus" );
 static const efftype_id effect_weak_antibiotic( "weak_antibiotic" );
 
 static const faction_id faction_robofac( "robofac" );
+
+static const flag_id json_flag_FROST_COVER( "FROST_COVER" );
 
 static const furn_str_id furn_f_arcfurnace_empty( "f_arcfurnace_empty" );
 static const furn_str_id furn_f_arcfurnace_full( "f_arcfurnace_full" );
@@ -2745,10 +2748,25 @@ void iexamine::dirtmound( Character &you, const tripoint_bub_ms &examp )
     }
     const itype_id &seed_id = std::get<0>( seed_entries[seed_index] );
 
-    ret_val<void>can_plant = warm_enough_to_plant( examp, seed_id );
-    if( !can_plant.success() ) {
-        you.add_msg_if_player( m_info, can_plant.c_str() );
-        return;
+    if( farming::enabled() ) {
+        // The player may gamble against the climate; only a lack of sky stops them.
+        if( !has_sunlight_access( examp ) && !farming::is_greenhouse( here, examp ) ) {
+            add_msg( m_info, _( "Plants need sunlight to grow!  You can't plant there." ) );
+            return;
+        }
+        const ret_val<void> outlook = farming::planting_outlook( here, examp, seed_id,
+                                      static_cast<int>( you.get_skill_level( skill_survival ) ) );
+        if( !outlook.success() &&
+            !query_yn( _( "%s  Plant anyway?" ), outlook.c_str() ) ) {
+            add_msg( _( "You saved your seeds for later." ) );
+            return;
+        }
+    } else {
+        ret_val<void>can_plant = warm_enough_to_plant( examp, seed_id );
+        if( !can_plant.success() ) {
+            you.add_msg_if_player( m_info, can_plant.c_str() );
+            return;
+        }
     }
 
     if( !here.has_flag_ter_or_furn( seed_id->seed->required_terrain_flag, examp ) ) {
@@ -2892,6 +2910,8 @@ void iexamine::harvest_plant( Character &you, const tripoint_bub_ms &examp, bool
             return;
         } else {
             const itype &type = *seed->type;
+            const double health_factor = farming::enabled() ? farming::harvest_factor( *seed ) : 1.0;
+            farming::drop_cover( here, you.pos_bub(), *seed );
             player_activity act( ACT_HARVEST, to_moves<int>( 60_seconds ) );
             you.assign_activity( act );
             here.i_clear( examp );
@@ -2901,6 +2921,8 @@ void iexamine::harvest_plant( Character &you, const tripoint_bub_ms &examp, bool
             int plant_count = rng( skillLevel / 2, skillLevel );
             const auto &fp = here.furn( examp )->plant;
             plant_count *= fp->harvest_multiplier;
+            // Frost-burned plants and flowers lost to heat mean less to pick.
+            plant_count = static_cast<int>( std::round( plant_count * health_factor ) );
             plant_count = std::min( std::max( plant_count, 1 ), 12 );
             int seedCount = std::max( 1, rng( plant_count / 4, plant_count / 2 ) );
             for( item &i : get_harvest_items( type, plant_count, seedCount, true ) ) {
@@ -2966,6 +2988,85 @@ itype_id iexamine::choose_fertilizer( Character &you, const std::string &pname,
     return *fertilizer_selected;
 
 }
+/**
+ * Realistic farming: show the plant's condition and what can be done with it.
+ */
+static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
+{
+    map &here = get_map();
+    map_stack items = here.i_at( examp );
+    const map_stack::iterator seed = std::find_if( items.begin(), items.end(), []( const item & it ) {
+        return it.is_seed();
+    } );
+    if( seed == items.end() ) {
+        return;
+    }
+    // Make sure what we describe is current.
+    if( !farming::simulate_plant( here, examp, *seed ) ) {
+        return;
+    }
+    const std::string pname = seed->get_plant_name();
+    const bool harvestable = here.has_flag_furn( ter_furn_flag::TFLAG_GROWTH_HARVEST, examp );
+    const bool fertilized = here.i_at( examp ).size() > 1;
+    const itype_id cover = farming::cover_of( *seed );
+    std::vector<item_location> covers = you.cache_get_items_with( json_flag_FROST_COVER );
+
+    enum plant_action : int {
+        HARVEST, FERTILIZE, COVER, UNCOVER
+    };
+    uilist menu;
+    menu.text = string_join( farming::describe_plant( here, examp, *seed, you ), "\n" );
+    menu.addentry( HARVEST, harvestable, MENU_AUTOASSIGN, _( "Harvest the %s" ), pname );
+    menu.addentry( FERTILIZE, !harvestable && !fertilized, MENU_AUTOASSIGN,
+                   fertilized ? _( "Fertilize (already fertilized)" ) : _( "Fertilize" ) );
+    if( cover.is_null() && covers.empty() ) {
+        menu.addentry( COVER, false, MENU_AUTOASSIGN,
+                       _( "Cover against frost (needs a row cover, sheet, blanket or tarp)" ) );
+    } else if( cover.is_null() ) {
+        menu.addentry( COVER, true, MENU_AUTOASSIGN, _( "Cover against frost with your %s" ),
+                       covers.front()->tname() );
+    } else {
+        menu.addentry( UNCOVER, true, MENU_AUTOASSIGN, _( "Take the %s off" ), cover->nname( 1 ) );
+    }
+    menu.query();
+
+    switch( menu.ret ) {
+        case HARVEST:
+            iexamine::harvest_plant( you, examp, false );
+            break;
+        case FERTILIZE: {
+            const itype_id fertilizer = iexamine::choose_fertilizer( you, pname, false );
+            if( !fertilizer.is_empty() ) {
+                iexamine::fertilize_plant( you, examp, fertilizer );
+            }
+            break;
+        }
+        case COVER: {
+            if( covers.empty() ) {
+                break;
+            }
+            const itype_id cover_type = covers.front()->typeId();
+            std::list<item> used = you.use_amount( cover_type, 1 );
+            if( !used.empty() ) {
+                farming::set_cover( *seed, cover_type );
+                you.mod_moves( -to_moves<int>( 30_seconds ) );
+                add_msg( _( "You spread the %1$s over the %2$s." ), item::nname( cover_type ), pname );
+            }
+            break;
+        }
+        case UNCOVER: {
+            farming::set_cover( *seed, itype_id::NULL_ID() );
+            item returned( cover, calendar::turn );
+            you.i_add_or_drop( returned );
+            you.mod_moves( -to_moves<int>( 15_seconds ) );
+            add_msg( _( "You take the %1$s off the %2$s." ), cover->nname( 1 ), pname );
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void iexamine::aggie_plant( Character &you, const tripoint_bub_ms &examp )
 {
     map &here = get_map();
@@ -2983,6 +3084,11 @@ void iexamine::aggie_plant( Character &you, const tripoint_bub_ms &examp )
     }
 
     const std::string pname = seed->get_plant_name();
+
+    if( farming::enabled() ) {
+        aggie_plant_menu( you, examp );
+        return;
+    }
 
     if( here.has_flag_furn( ter_furn_flag::TFLAG_GROWTH_HARVEST, examp ) &&
         query_yn( _( "Harvest the %s?" ), pname ) ) {
