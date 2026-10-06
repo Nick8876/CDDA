@@ -1,0 +1,76 @@
+[
+  {
+    "type": "ITEM",
+    "id": "grow_light_led",
+    "name": { "str": "disconnected LED grow light" },
+    "description": "A wide aluminum panel studded with red, white and blue LEDs, made for growing plants indoors.  Hung over a planting bed and plugged into a power outlet, it lights the bed below it and the beds around it as well as a bright spring day, but it draws 900 watts while it's on.  An indoor garden needs a serious power supply.",
+    "weight": "6 kg",
+    "volume": "8 L",
+    "longest_side": "120 cm",
+    "price": "350 USD",
+    "price_postapoc": "20 USD",
+    "material": [ "aluminum", "plastic" ],
+    "symbol": "#",
+    "color": "pink",
+    "melee_damage": { "bash": 4 }
+  },
+  {
+    "id": "ap_grow_light_led",
+    "type": "vehicle_part",
+    "name": { "str": "LED grow light" },
+    "item": "grow_light_led",
+    "categories": [ "lighting" ],
+    "color": "pink",
+    "broken_color": "dark_gray",
+    "light_color": [ 255, 160, 230 ],
+    "durability": 30,
+    "description": "A panel of LEDs that lights the planting beds below and around it well enough for crops to grow indoors (realistic farming).  It draws 900 W while turned on.",
+    "epower": "-900 W",
+    "bonus": 40,
+    "damage_modifier": 10,
+    "breaks_into": [ { "item": "cable", "count": [ 1, 3 ] }, { "item": "e_scrap", "count": [ 1, 3 ] }, { "item": "scrap_aluminum", "count": [ 1, 3 ] } ],
+    "flags": [ "CIRCLE_LIGHT", "APPLIANCE", "ENABLED_DRAINS_EPOWER", "CTRL_ELECTRONIC", "GROW_LIGHT" ],
+    "requirements": { "removal": { "time": "6 m" } },
+    "variants": [ { "symbols": "#", "symbols_broken": "-" } ]
+  },
+  {
+    "type": "construction_group",
+    "id": "place_grow_light_led",
+    "name": "Place LED Grow Light"
+  },
+  {
+    "type": "construction",
+    "id": "app_grow_light_led",
+    "group": "place_grow_light_led",
+    "category": "APPLIANCE",
+    "required_skills": [ [ "fabrication", 0 ] ],
+    "time": "5 m",
+    "components": [ [ [ "grow_light_led", 1 ] ] ],
+    "pre_special": "check_empty",
+    "post_special": "done_appliance",
+    "activity_level": "LIGHT_EXERCISE"
+  },
+  {
+    "result": "grow_light_led",
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "reversible": true,
+    "skill_used": "electronics",
+    "difficulty": 3,
+    "time": "1 h",
+    "autolearn": [ [ "electronics", 3 ] ],
+    "category": "CC_APPLIANCE",
+    "subcategory": "CSC_APPLIANCE_LIGHTING",
+    "skills_required": [ [ "fabrication", 1 ] ],
+    "proficiencies": [ { "proficiency": "prof_appliance_repair" } ],
+    "using": [ [ "soldering_standard", 20 ] ],
+    "qualities": [ { "id": "SCREW", "level": 1 }, { "id": "SAW_M", "level": 1 } ],
+    "//": "A home-built panel: LED strips on a sheet of metal, run off a power supply.",
+    "components": [
+      [ [ "lightstrip_inactive", 8 ] ],
+      [ [ "power_supply", 1 ] ],
+      [ [ "cable", 4 ] ],
+      [ [ "sheet_metal_small", 4 ] ]
+    ]
+  }
+]

@@ -103,6 +103,9 @@ std::string rotation_warning( map &here, const tripoint_bub_ms &p, const itype_i
 /** Whether the tile is inside a greenhouse. */
 bool is_greenhouse( const map &here, const tripoint_bub_ms &p );
 
+/** Whether a crop would get enough light here: sun, windows or grow lights. */
+ret_val<void> light_outlook( map &here, const tripoint_bub_ms &p, const itype_id &seed_type );
+
 /** Whether a crop planted here and now is likely to survive and ripen, judged from the local climate. */
 ret_val<void> planting_outlook( const map &here, const tripoint_bub_ms &p,
                                 const itype_id &seed_type, int survival_skill );

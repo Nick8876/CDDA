@@ -73,6 +73,7 @@ void crop_profile::load( const JsonObject &jo, std::string_view )
     optional( jo, was_loaded, "phosphorus", phosphorus, 2.0 );
     optional( jo, was_loaded, "potassium", potassium, 10.0 );
     optional( jo, was_loaded, "nitrogen_fixation", nitrogen_fixation, 0.0 );
+    optional( jo, was_loaded, "light_need", light_need, 17.0 );
 }
 
 void crop_profile::check() const
@@ -88,6 +89,9 @@ void crop_profile::check() const
     }
     if( nitrogen < 0.0 || phosphorus < 0.0 || potassium < 0.0 ) {
         debugmsg( "crop_profile %s: nutrient demands must not be negative", id.str() );
+    }
+    if( light_need < 0.0 ) {
+        debugmsg( "crop_profile %s: light_need must not be negative", id.str() );
     }
     if( nitrogen_fixation < 0.0 || nitrogen_fixation > 1.0 ) {
         debugmsg( "crop_profile %s: nitrogen_fixation must be between 0 and 1", id.str() );

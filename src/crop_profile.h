@@ -77,6 +77,12 @@ class crop_profile
         double potassium = 10.0;
         /** Share of its nitrogen a legume gets from the air through its root nodules (0 to 1). */
         double nitrogen_fixation = 0.0;
+        /**
+         * Daily light integral (mol of photosynthetic photons per square meter per day) the crop
+         * needs to grow at full speed: about 12-17 for leafy greens, 20-30 for fruiting crops.
+         * Fungi need none.
+         */
+        double light_need = 17.0;
 
         /** Growing degree days (C) gained in a day with this low and high. */
         double degree_days( double low_c, double high_c ) const;

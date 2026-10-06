@@ -26,6 +26,8 @@
 #include "soil.h"
 #include "string_formatter.h"
 #include "translations.h"
+#include "vehicle.h"
+#include "vpart_position.h"
 #include "weather.h"
 #include "weather_gen.h"
 #include "weather_type.h"
@@ -60,6 +62,9 @@ constexpr const char *var_k_factor = "farm_k_factor";
 constexpr const char *var_infected_day = "farm_infected_day";
 constexpr const char *var_burn_day = "farm_burn_day";
 constexpr const char *var_matured = "farm_matured";
+constexpr const char *var_light_factor = "farm_light_factor";
+constexpr const char *var_dark_day = "farm_dark_day";
+constexpr const char *var_light_week = "farm_light_week";
 
 // Days of cold it takes a hardy plant to fully acclimate.
 constexpr double hardening_days = 14.0;
@@ -133,6 +138,82 @@ constexpr double disease_damage_per_day = 1.5;
 constexpr double disease_growth_factor = 0.8;
 // How many past crops a bed remembers.
 constexpr size_t history_length = 4;
+
+// Light.  About 45% of sunlight's energy is photosynthetically active, at 4.57 umol per joule.
+constexpr double sun_photons_mol_per_joule = 0.45 * 4.57e-6;
+// A window lets a little daylight onto a bed next to it.
+constexpr double window_light_share = 0.08;
+constexpr double max_window_light_share = 0.25;
+// A 900 W LED grow light running 16 hours a day lights its own tile and the eight around it
+// to this daily light integral (at 2.7 umol/J).
+constexpr double grow_light_dli = 15.0;
+// Below this share of its light need a plant slowly starves.
+constexpr double starving_light_factor = 0.15;
+constexpr double darkness_damage_per_day = 2.0;
+// An unheated building evens out the day: nights stay warmer, afternoons cooler.
+constexpr double indoor_low_bonus_c = 4.0;
+constexpr double indoor_high_cut_c = 2.0;
+
+/** How much of the day's sun reaches a bed: glass, shade from walls and trees, windows indoors. */
+double sun_share( const map &here, const tripoint_bub_ms &p, const plot_info &plot )
+{
+    if( !plot.exposed && !plot.greenhouse && !has_sunlight_access( p ) ) {
+        // Indoors: only light through nearby windows.
+        int windows = 0;
+        for( const tripoint_bub_ms &q : here.points_in_radius( p, 1 ) ) {
+            if( q != p && here.has_flag( ter_furn_flag::TFLAG_WINDOW, q ) ) {
+                windows++;
+            }
+        }
+        return std::min( max_window_light_share, windows * window_light_share );
+    }
+    // Neighbors that block the sky.  The sun stands in the south, so obstacles there matter most.
+    double shade = 0.0;
+    for( const tripoint_bub_ms &q : here.points_in_radius( p, 1 ) ) {
+        if( q == p ) {
+            continue;
+        }
+        const bool blocks = here.has_flag( ter_furn_flag::TFLAG_TREE, q ) ||
+                            !here.has_flag_ter( ter_furn_flag::TFLAG_TRANSPARENT, q );
+        if( !blocks ) {
+            continue;
+        }
+        const int dy = q.y() - p.y();
+        shade += dy > 0 ? 0.15 : dy == 0 ? 0.08 : 0.03;
+    }
+    double share = std::max( 0.3, 1.0 - shade );
+    if( !plot.exposed ) {
+        // Under glass: a greenhouse, or a glass roof.
+        share *= greenhouse_light_transmission;
+    }
+    return share;
+}
+
+/** Daily light integral from switched-on, powered grow lights over the bed. */
+double grow_light_at( const map &here, const tripoint_bub_ms &p )
+{
+    double dli = 0.0;
+    for( const tripoint_bub_ms &q : here.points_in_radius( p, 1 ) ) {
+        const optional_vpart_position vp = here.veh_at( q );
+        if( !vp ) {
+            continue;
+        }
+        // A light whose grid runs dry switches itself off.
+        const std::optional<vpart_reference> light = vp->part_with_feature( "GROW_LIGHT", true );
+        if( light && light->part().enabled ) {
+            dli += grow_light_dli;
+        }
+    }
+    return dli;
+}
+
+double light_factor( double dli, const crop_profile &profile )
+{
+    if( profile.light_need <= 0.0 ) {
+        return 1.0;
+    }
+    return std::clamp( dli / profile.light_need, 0.0, 1.0 );
+}
 
 struct plot_info {
     double capacity = ground_capacity_mm;
@@ -602,6 +683,14 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     const bool greenhouse = plot.greenhouse;
     const bool covered = !cover_of( seed ).is_null();
     const double scale = season_scale();
+    const bool underground = p.z() < 0;
+    // Light reaching the bed: a share of the day's sun, plus any grow lights switched on now.
+    // A frost cover lets most light through.
+    const double sun = sun_share( here, p, plot ) * ( covered ? 0.85 : 1.0 );
+    const double lamp_dli = grow_light_at( here, p );
+    // Underground it's the same all year; a heated room is as warm as it is now.
+    const double cave_c = get_weather().get_cur_weather_gen().base_temperature;
+    const double room_c = units::to_celsius( get_weather().get_temperature( p ) );
 
     // The bed itself: bring it up to the day this plant's record starts.
     soil_state &soil = here.get_soil( p );
@@ -621,6 +710,8 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     bool matured = seed.get_var( var_matured, 0.0 ) > 0.0;
     double limit_sum = seed.get_var( var_limit_sum, 0.0 );
     double limit_weight = seed.get_var( var_limit_weight, 0.0 );
+    double light_seen = seed.get_var( var_light_factor, 1.0 );
+    double light_week = seed.get_var( var_light_week, 1.0 );
     bool died = false;
     std::string cause;
 
@@ -631,11 +722,27 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
         double mean = w.mean_c;
         double melt_water = 0.0;
 
-        if( greenhouse ) {
+        if( underground ) {
+            low = cave_c;
+            high = cave_c;
+            mean = cave_c;
+        } else if( greenhouse ) {
             low += greenhouse_low_bonus_c;
             high += high < 20.0 ? greenhouse_cool_day_high_bonus_c : greenhouse_warm_day_high_bonus_c;
             mean = ( low + high ) / 2.0;
-        } else if( plot.exposed ) {
+        } else if( !plot.exposed ) {
+            // Inside a building.
+            low += indoor_low_bonus_c;
+            high = std::max( low, high - indoor_high_cut_c );
+            mean = ( low + high ) / 2.0;
+        }
+        if( !plot.exposed && day == today - 1 && room_c > low ) {
+            // Whatever is heating the room now (a stove, a space heater) kept it warm.
+            low = std::max( low, room_c - 3.0 );
+            high = std::max( high, room_c );
+            mean = ( low + high ) / 2.0;
+        }
+        if( plot.exposed ) {
             // Snowpack on the bed: builds from snowfall, melts on warm days.
             snow += w.snow_water_mm * snow_per_water_mm;
             if( mean > 0.0 ) {
@@ -686,7 +793,18 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
             }
         }
 
+        const double dli = w.radiant_exposure * sun_photons_mol_per_joule * sun + lamp_dli;
+        const double light = light_factor( dli, profile );
+
+        // A few dark, stormy days don't hurt; weeks without enough light do.
+        light_week = light_week * 0.85 + light * 0.15;
+
         double damage = 0.0;
+        if( light_week < starving_light_factor && stage != "GROWTH_SEED" ) {
+            damage += darkness_damage_per_day;
+            seed.set_var( var_dark_day, static_cast<double>( day ) );
+            cause = _( "lack of light" );
+        }
         if( infected ) {
             damage += disease_damage_per_day;
             cause = _( "disease" );
@@ -753,7 +871,8 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
         }
         const double nutrient_factor = std::min( { n_factor, p_factor, k_factor } );
         // Liebig's law of the minimum: the scarcest of water and nutrients sets the day's growth.
-        double limit = std::min( water_factor, nutrient_factor );
+        double limit = std::min( { water_factor, nutrient_factor, light } );
+        light_seen = light;
         if( infected ) {
             limit *= disease_growth_factor;
         }
@@ -787,6 +906,8 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     seed.set_var( var_hardening, hardening );
     seed.set_var( var_snow, snow );
     seed.set_var( var_water_factor, water_factor );
+    seed.set_var( var_light_factor, light_seen );
+    seed.set_var( var_light_week, light_week );
     seed.set_var( var_n_factor, n_factor );
     seed.set_var( var_p_factor, p_factor );
     seed.set_var( var_k_factor, k_factor );
@@ -902,6 +1023,16 @@ std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
         }
     }
 
+    // Light.  Seedlings stretching for light are easy to spot; knowing why takes experience.
+    const double light = seed.get_var( var_light_week, 1.0 );
+    if( light < 0.5 ) {
+        lines.emplace_back( skill >= 2 ?
+                            _( "It's pale and spindly, stretching toward the light: it needs more light than it gets here." ) :
+                            _( "It's pale and spindly." ) );
+    } else if( light < 0.85 && skill >= 3 ) {
+        lines.emplace_back( _( "It's a little leggy; more light would help it." ) );
+    }
+
     // Nutrient shortages.  Pale, yellowing leaves could be many things to a beginner.
     const double n_factor = seed.get_var( var_n_factor, 1.0 );
     const double p_factor = seed.get_var( var_p_factor, 1.0 );
@@ -989,6 +1120,27 @@ std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
         lines.emplace_back( _( "The greenhouse keeps it a few degrees warmer, but it isn't heated." ) );
     }
     return lines;
+}
+
+ret_val<void> light_outlook( map &here, const tripoint_bub_ms &p, const itype_id &seed_type )
+{
+    if( !seed_type->seed ) {
+        return ret_val<void>::make_success();
+    }
+    const crop_profile &profile = profile_of( seed_type );
+    const plot_info plot = plot_at( here, p );
+    const double sun = sun_share( here, p, plot );
+    if( profile.light_need <= 0.0 || sun >= 0.5 ) {
+        return ret_val<void>::make_success();
+    }
+    // A clear summer day gives about 50 mol/m2 of sunlight outdoors.
+    const double dli = 50.0 * sun + grow_light_at( here, p );
+    if( light_factor( dli, profile ) < 0.5 ) {
+        return ret_val<void>::make_failure(
+                   _( "It's too dark here for %s to grow well: it needs sunlight or a grow light." ),
+                   seed_type->seed->plant_name.translated() );
+    }
+    return ret_val<void>::make_success();
 }
 
 ret_val<void> planting_outlook( const map &here, const tripoint_bub_ms &p,

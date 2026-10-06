@@ -2752,9 +2752,10 @@ void iexamine::dirtmound( Character &you, const tripoint_bub_ms &examp )
     const itype_id &seed_id = std::get<0>( seed_entries[seed_index] );
 
     if( farming::enabled() ) {
-        // The player may gamble against the climate; only a lack of sky stops them.
-        if( !has_sunlight_access( examp ) && !farming::is_greenhouse( here, examp ) ) {
-            add_msg( m_info, _( "Plants need sunlight to grow!  You can't plant there." ) );
+        // The player may gamble against the climate and the light; the plant will tell.
+        const ret_val<void> light = farming::light_outlook( here, examp, seed_id );
+        if( !light.success() && !query_yn( _( "%s  Plant anyway?" ), light.c_str() ) ) {
+            add_msg( _( "You saved your seeds for later." ) );
             return;
         }
         const int survival = static_cast<int>( you.get_skill_level( skill_survival ) );

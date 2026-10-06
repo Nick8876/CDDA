@@ -63,11 +63,16 @@ Main code: `src/farming.cpp`, `src/crop_profile.cpp`, `map::grow_plant` and `map
 - **Crop rotation and disease.** Each bed remembers its last four crops' plant families. Every crop leaves disease pressure for its family in the soil, halving each year. Plants catch soil-borne diseases more often where their family grew recently and in wet weather. A diseased plant loses health daily and yields less. Pulling it up (new menu option) stops it. Survival 2+ warns before planting the same family again.
 - **Symptoms.** Survival 2+ sees nutrient-specific signs (yellowing older leaves, purple tinge, scorched edges); 4+ names the shortage. Survival 3+ recognizes each family's disease: late blight, clubroot, powdery mildew, white rot, rust, root rot, leaf blight, downy mildew.
 
-### Part 4: light (Planned)
+### Part 4: light (Written)
 
-- Daily light from the real sun and cloud cover, reduced by shade from nearby trees and walls.
-- Indoor planters allowed; light comes from windows (weak) or grow lights.
-- Grow lights as appliances on the power grid, with realistic power draw.
+- **Daily light from the real sun.** The day's solar energy (already simulated with sun angle and cloud cover) converts to a daily light integral: about 45% of sunlight is photosynthetic, at 4.57 umol per joule. A clear midsummer day gives about 66 mol/m2, close to the real ~60.
+- **Each crop has a `light_need`** (mol/m2/day for full growth): about 12-15 for leafy greens and radishes, 16-20 for roots, peas and beans, 22-25 for tomatoes, squash, grain and corn. Mushrooms need none.
+- **Shade.** Walls and trees around a bed take light, most from the south side (up to 70%). Glass passes 80%. A frost cover passes 85%.
+- **Indoor beds are allowed.** Planters can now go inside: they get some light from adjacent windows (8% of daylight each, up to 25%) or from grow lights. The game warns when a spot is too dark and asks before planting. NPCs won't plant in the dark.
+- **LED grow light** (new appliance, `grow_light_led`): placed like a standing lamp and plugged into your power grid. It draws a realistic 900 W while on and lights its own tile and the eight around it to 15 mol/m2/day; stack lights for hungry crops. It switches off when the grid runs dry. Found in garden supply loot or crafted from LED strips (electronics 3).
+- **Indoor and underground temperatures.** Rooms even out the day (nights 4 C warmer, afternoons 2 C cooler). Whatever heats the room now (stove, space heater) keeps beds warm. Underground beds sit at the region's year-round ground temperature.
+- **Growth and harvest** now follow the scarcest of water, nutrients and light each day. Weeks of too little light starve the plant (a few stormy days don't).
+- **Symptoms.** Pale, spindly, stretching plants; Survival 2+ knows it's light.
 
 ### Part 5: diagnosis and NPC help (Planned)
 

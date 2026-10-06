@@ -961,14 +961,18 @@ ret_val<void> warm_enough_to_plant( const tripoint_bub_ms &pos, const itype_id &
 {
     std::map<time_point, units::temperature> planting_times;
 
-    if( !has_sunlight_access( pos ) ) {
-        return ret_val<void>::make_failure( _( "Plants need sunlight to grow!  You can't plant there." ) );
-    }
-
-    // Realistic farming judges the local climate instead of the actual future weather.
+    // Realistic farming judges light and the local climate instead of the actual future weather.
     // Whoever plants for us (NPCs, farm zones, camps) knows the climate well.
     if( farming::enabled() ) {
+        const ret_val<void> light = farming::light_outlook( get_map(), pos, it );
+        if( !light.success() ) {
+            return light;
+        }
         return farming::planting_outlook( get_map(), pos, it, 10 );
+    }
+
+    if( !has_sunlight_access( pos ) ) {
+        return ret_val<void>::make_failure( _( "Plants need sunlight to grow!  You can't plant there." ) );
     }
 
     if( get_map().ter( pos ).id() == ter_t_greenhouse_tilled ) {

@@ -12,7 +12,8 @@
     "family": "none",
     "nitrogen": 10,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 17
   },
   {
     "type": "crop_profile",
@@ -29,7 +30,8 @@
     "drought_tolerance": 0.4,
     "nitrogen": 15,
     "phosphorus": 3,
-    "potassium": 20
+    "potassium": 20,
+    "light_need": 22
   },
   {
     "type": "crop_profile",
@@ -44,7 +46,8 @@
     "family": "nightshade",
     "nitrogen": 12,
     "phosphorus": 2,
-    "potassium": 18
+    "potassium": 18,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -61,7 +64,8 @@
     "drought_tolerance": 0.35,
     "nitrogen": 15,
     "phosphorus": 3,
-    "potassium": 22
+    "potassium": 22,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -78,7 +82,8 @@
     "drought_tolerance": 0.45,
     "nitrogen": 12,
     "phosphorus": 2.5,
-    "potassium": 15
+    "potassium": 15,
+    "light_need": 22
   },
   {
     "type": "crop_profile",
@@ -95,7 +100,8 @@
     "drought_tolerance": 0.55,
     "nitrogen": 18,
     "phosphorus": 3.5,
-    "potassium": 15
+    "potassium": 15,
+    "light_need": 25
   },
   {
     "type": "crop_profile",
@@ -113,7 +119,8 @@
     "nitrogen": 12,
     "phosphorus": 2.5,
     "potassium": 10,
-    "nitrogen_fixation": 0.7
+    "nitrogen_fixation": 0.7,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -131,7 +138,8 @@
     "nitrogen": 12,
     "phosphorus": 2.5,
     "potassium": 9,
-    "nitrogen_fixation": 0.75
+    "nitrogen_fixation": 0.75,
+    "light_need": 15
   },
   {
     "type": "crop_profile",
@@ -149,7 +157,8 @@
     "drought_tolerance": 0.45,
     "nitrogen": 18,
     "phosphorus": 3,
-    "potassium": 18
+    "potassium": 18,
+    "light_need": 14
   },
   {
     "type": "crop_profile",
@@ -167,7 +176,8 @@
     "drought_tolerance": 0.45,
     "nitrogen": 18,
     "phosphorus": 3,
-    "potassium": 18
+    "potassium": 18,
+    "light_need": 15
   },
   {
     "type": "crop_profile",
@@ -185,7 +195,8 @@
     "drought_tolerance": 0.5,
     "nitrogen": 12,
     "phosphorus": 3,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -202,7 +213,8 @@
     "drought_tolerance": 0.3,
     "nitrogen": 6,
     "phosphorus": 1.5,
-    "potassium": 7
+    "potassium": 7,
+    "light_need": 12
   },
   {
     "type": "crop_profile",
@@ -218,7 +230,8 @@
     "family": "brassica",
     "nitrogen": 8,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 15
   },
   {
     "type": "crop_profile",
@@ -235,7 +248,8 @@
     "drought_tolerance": 0.3,
     "nitrogen": 8,
     "phosphorus": 1.5,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 13
   },
   {
     "type": "crop_profile",
@@ -253,7 +267,8 @@
     "drought_tolerance": 0.2,
     "nitrogen": 10,
     "phosphorus": 1.5,
-    "potassium": 12
+    "potassium": 12,
+    "light_need": 12
   },
   {
     "type": "crop_profile",
@@ -269,7 +284,8 @@
     "drought_tolerance": 0.2,
     "nitrogen": 15,
     "phosphorus": 3,
-    "potassium": 20
+    "potassium": 20,
+    "light_need": 15
   },
   {
     "type": "crop_profile",
@@ -287,7 +303,8 @@
     "drought_tolerance": 0.35,
     "nitrogen": 10,
     "phosphorus": 2,
-    "potassium": 15
+    "potassium": 15,
+    "light_need": 16
   },
   {
     "type": "crop_profile",
@@ -304,7 +321,8 @@
     "drought_tolerance": 0.5,
     "nitrogen": 12,
     "phosphorus": 2.5,
-    "potassium": 18
+    "potassium": 18,
+    "light_need": 16
   },
   {
     "type": "crop_profile",
@@ -320,7 +338,8 @@
     "family": "aster",
     "nitrogen": 8,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 15
   },
   {
     "type": "crop_profile",
@@ -337,7 +356,8 @@
     "drought_tolerance": 0.3,
     "nitrogen": 10,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -355,7 +375,8 @@
     "drought_tolerance": 0.3,
     "nitrogen": 10,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 16
   },
   {
     "type": "crop_profile",
@@ -373,7 +394,8 @@
     "drought_tolerance": 0.55,
     "nitrogen": 11,
     "phosphorus": 2.5,
-    "potassium": 8
+    "potassium": 8,
+    "light_need": 22
   },
   {
     "type": "crop_profile",
@@ -391,7 +413,8 @@
     "drought_tolerance": 0.55,
     "nitrogen": 11,
     "phosphorus": 2.5,
-    "potassium": 8
+    "potassium": 8,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -408,7 +431,8 @@
     "drought_tolerance": 0.55,
     "nitrogen": 6,
     "phosphorus": 1.5,
-    "potassium": 6
+    "potassium": 6,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -425,7 +449,8 @@
     "flood_tolerant": true,
     "nitrogen": 8,
     "phosphorus": 2,
-    "potassium": 8
+    "potassium": 8,
+    "light_need": 22
   },
   {
     "type": "crop_profile",
@@ -441,7 +466,8 @@
     "drought_tolerance": 0.45,
     "nitrogen": 10,
     "phosphorus": 2.5,
-    "potassium": 12
+    "potassium": 12,
+    "light_need": 25
   },
   {
     "type": "crop_profile",
@@ -458,7 +484,8 @@
     "drought_tolerance": 0.65,
     "nitrogen": 15,
     "phosphorus": 3,
-    "potassium": 14
+    "potassium": 14,
+    "light_need": 25
   },
   {
     "type": "crop_profile",
@@ -472,7 +499,8 @@
     "family": "hemp",
     "nitrogen": 15,
     "phosphorus": 3,
-    "potassium": 12
+    "potassium": 12,
+    "light_need": 25
   },
   {
     "type": "crop_profile",
@@ -490,7 +518,8 @@
     "drought_tolerance": 0.5,
     "nitrogen": 12,
     "phosphorus": 2.5,
-    "potassium": 12
+    "potassium": 12,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -505,7 +534,8 @@
     "family": "poppy",
     "nitrogen": 8,
     "phosphorus": 2,
-    "potassium": 8
+    "potassium": 8,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -522,7 +552,8 @@
     "drought_tolerance": 0.45,
     "nitrogen": 15,
     "phosphorus": 3,
-    "potassium": 15
+    "potassium": 15,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -537,7 +568,8 @@
     "family": "aster",
     "nitrogen": 8,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -555,7 +587,8 @@
     "drought_tolerance": 0.5,
     "nitrogen": 6,
     "phosphorus": 1.5,
-    "potassium": 8
+    "potassium": 8,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -573,7 +606,8 @@
     "drought_tolerance": 0.4,
     "nitrogen": 5,
     "phosphorus": 1,
-    "potassium": 6
+    "potassium": 6,
+    "light_need": 16
   },
   {
     "type": "crop_profile",
@@ -591,7 +625,8 @@
     "drought_tolerance": 0.55,
     "nitrogen": 6,
     "phosphorus": 1.5,
-    "potassium": 8
+    "potassium": 8,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -607,7 +642,8 @@
     "family": "none",
     "nitrogen": 10,
     "phosphorus": 2,
-    "potassium": 10
+    "potassium": 10,
+    "light_need": 17
   },
   {
     "type": "crop_profile",
@@ -625,7 +661,8 @@
     "drought_tolerance": 0.6,
     "nitrogen": 5,
     "phosphorus": 1,
-    "potassium": 6
+    "potassium": 6,
+    "light_need": 14
   },
   {
     "type": "crop_profile",
@@ -643,7 +680,8 @@
     "drought_tolerance": 0.5,
     "nitrogen": 12,
     "phosphorus": 2,
-    "potassium": 12
+    "potassium": 12,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -661,7 +699,8 @@
     "drought_tolerance": 0.85,
     "nitrogen": 2,
     "phosphorus": 0.5,
-    "potassium": 3
+    "potassium": 3,
+    "light_need": 20
   },
   {
     "type": "crop_profile",
@@ -680,7 +719,8 @@
     "flood_tolerant": true,
     "nitrogen": 5,
     "phosphorus": 1,
-    "potassium": 5
+    "potassium": 5,
+    "light_need": 18
   },
   {
     "type": "crop_profile",
@@ -697,7 +737,8 @@
     "drought_tolerance": 0.3,
     "nitrogen": 0,
     "phosphorus": 0,
-    "potassium": 0
+    "potassium": 0,
+    "light_need": 0
   },
   {
     "type": "crop_profile",
@@ -714,6 +755,7 @@
     "drought_tolerance": 0.9,
     "nitrogen": 0,
     "phosphorus": 0,
-    "potassium": 0
+    "potassium": 0,
+    "light_need": 0
   }
 ]

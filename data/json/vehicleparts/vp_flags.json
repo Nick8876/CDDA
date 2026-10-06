@@ -60,6 +60,11 @@
     "info": "Enables an associated EOC to be triggered from the vehicle control menu."
   },
   {
+    "id": "GROW_LIGHT",
+    "type": "json_flag",
+    "info": "Lights the farm plots below and around it well enough for crops to <color_yellow>grow indoors</color> when turned on."
+  },
+  {
     "id": "SMART_ENGINE_CONTROLLER",
     "type": "json_flag",
     "info": "When active, turns engines on and off automatically."
