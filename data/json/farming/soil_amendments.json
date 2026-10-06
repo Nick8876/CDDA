@@ -1,0 +1,128 @@
+[
+  {
+    "type": "soil_amendment",
+    "id": "amend_fertilizer_commercial",
+    "//": "10-10-10 garden granules, 27 g each: 10% N, 4.4% P, 8.3% K.  A dose of two is about 50 g per square meter, a typical rate.",
+    "item": "fertilizer_commercial",
+    "dose": 2,
+    "nitrogen": 2.7,
+    "phosphorus": 1.2,
+    "potassium": 2.2,
+    "ph_change": -0.005,
+    "burns": true
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_fertilizer_liquid",
+    "//": "Compost tea or fish emulsion, roughly 5-1-1, per charge.",
+    "item": "fertilizer_liquid",
+    "dose": 4,
+    "nitrogen": 0.5,
+    "phosphorus": 0.1,
+    "potassium": 0.2,
+    "organic_nitrogen": 0.2
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_feces_manure",
+    "//": "Fresh barnyard manure, 250 g: about 0.6% N, 0.2% P, 0.5% K, two thirds of the nitrogen still bound in organic matter.  A dose of eight is 2 kg per square meter.",
+    "item": "feces_manure",
+    "dose": 8,
+    "nitrogen": 0.5,
+    "phosphorus": 0.5,
+    "potassium": 1.2,
+    "organic_nitrogen": 1.0
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_feces_cow",
+    "//": "A 750 g cow pie, wetter and a little leaner than mixed manure.",
+    "item": "feces_cow",
+    "dose": 3,
+    "nitrogen": 1.2,
+    "phosphorus": 1.1,
+    "potassium": 3.5,
+    "organic_nitrogen": 3.3
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_feces_bird",
+    "//": "Poultry litter, 40 g: rich and quick, about 1.5% N; fresh, it can burn plants.",
+    "item": "feces_bird",
+    "dose": 10,
+    "nitrogen": 0.3,
+    "phosphorus": 0.25,
+    "potassium": 0.25,
+    "organic_nitrogen": 0.3,
+    "burns": true
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_feces_roach",
+    "//": "Insect frass, sold as a gentle organic fertilizer.",
+    "item": "feces_roach",
+    "dose": 10,
+    "nitrogen": 0.1,
+    "phosphorus": 0.05,
+    "potassium": 0.1,
+    "organic_nitrogen": 0.6
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_ash",
+    "//": "Wood ash, 10 g a handful: about 5% K and 1% P, and as much liming power as half its weight in limestone.  A dose of twenty is 200 g per square meter.",
+    "item": "ash",
+    "dose": 20,
+    "phosphorus": 0.1,
+    "potassium": 0.5,
+    "ph_change": 0.01
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_meal_bone",
+    "//": "Bone meal, 60 g: about 3% N and 6.5% P, released slowly; its calcium raises the pH a little.",
+    "item": "meal_bone",
+    "dose": 2,
+    "phosphorus": 3.9,
+    "organic_nitrogen": 1.8,
+    "ph_change": 0.01
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_chem_saltpetre",
+    "//": "Potassium nitrate, 13% N and 38% K, fully soluble.",
+    "item": "chem_saltpetre",
+    "dose": 5,
+    "nitrogen": 0.69,
+    "potassium": 2.0,
+    "burns": true
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_chem_potassium_chloride",
+    "//": "Muriate of potash, 52% K.",
+    "item": "chem_potassium_chloride",
+    "dose": 10,
+    "potassium": 1.0,
+    "burns": true
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_chem_ammonium_nitrate",
+    "//": "Ammonium nitrate, 34% N.  A dose of fifteen grams gives 5 g of nitrogen per square meter; it slowly acidifies the soil.",
+    "item": "chem_ammonium_nitrate",
+    "dose": 15,
+    "nitrogen": 0.34,
+    "ph_change": -0.01,
+    "burns": true
+  },
+  {
+    "type": "soil_amendment",
+    "id": "amend_seaweed",
+    "//": "Fresh seaweed, 30 g: a traditional coastal potash source.",
+    "item": "seaweed",
+    "dose": 20,
+    "potassium": 0.3,
+    "organic_nitrogen": 0.1
+  }
+]

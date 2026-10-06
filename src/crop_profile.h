@@ -68,6 +68,15 @@ class crop_profile
         double drought_tolerance = 0.5;
         /** Grows in standing water without its roots rotting (rice, cattails). */
         bool flood_tolerant = false;
+        /**
+         * Nutrients a full crop takes up over its life, in grams per square meter (one tile).
+         * Agronomy figures in kg/ha divide by ten: corn's 180 kg N/ha is 18 g here.
+         */
+        double nitrogen = 10.0;
+        double phosphorus = 2.0;
+        double potassium = 10.0;
+        /** Share of its nitrogen a legume gets from the air through its root nodules (0 to 1). */
+        double nitrogen_fixation = 0.0;
 
         /** Growing degree days (C) gained in a day with this low and high. */
         double degree_days( double low_c, double high_c ) const;
@@ -82,6 +91,43 @@ class crop_profile
         double frost_damage( double low_c, double hardening ) const;
         /** Fraction of the harvest lost to a day with this high during flowering (0 to 1). */
         double heat_loss( double high_c ) const;
+};
+
+/**
+ * What applying a fertilizer or other soil amendment does to a farm plot (realistic farming).
+ * One per item type; values are per unit (one charge, or one item for items without charges).
+ */
+class soil_amendment
+{
+    public:
+        static void load_soil_amendments( const JsonObject &jo, const std::string &src );
+        static void finalize_all();
+        static void check_consistency();
+        static void reset();
+        static const std::vector<soil_amendment> &get_all();
+        /** The amendment for this item, or a modest generic one for unlisted fertilizers. */
+        static const soil_amendment &for_item( const itype_id &item );
+
+        void load( const JsonObject &jo, std::string_view src );
+
+        soil_amendment_id id;
+        std::vector<std::pair<soil_amendment_id, mod_id>> src;
+        bool was_loaded = false;
+
+        /** The item this describes. */
+        itype_id item;
+        /** Units one application uses, so a dose covers a square meter at a sensible rate. */
+        int dose = 1;
+        /** Plant-available nutrients per unit, grams. */
+        double nitrogen = 0.0;
+        double phosphorus = 0.0;
+        double potassium = 0.0;
+        /** Nitrogen bound in organic matter per unit, grams; released slowly as it decays. */
+        double organic_nitrogen = 0.0;
+        /** Change in soil pH per unit. */
+        double ph_change = 0.0;
+        /** Soluble salts that scorch roots when overapplied. */
+        bool burns = false;
 };
 
 #endif // CATA_SRC_CROP_PROFILE_H

@@ -100,7 +100,7 @@
     "vitamins": [ [ "calcium", "5294 mg" ], [ "meat_allergen", 1 ] ],
     "material": [ "powder" ],
     "volume": "125 ml",
-    "flags": [ "NO_TEMP" ],
+    "flags": [ "FERTILIZER", "NO_TEMP" ],
     "fun": -10
   },
   {

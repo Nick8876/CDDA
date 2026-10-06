@@ -9,7 +9,10 @@
     "frost_damage_temp": "-2 C",
     "frost_kill_temp": "-4 C",
     "heat_stress_temp": "35 C",
-    "family": "none"
+    "family": "none",
+    "nitrogen": 10,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -23,7 +26,10 @@
     "heat_stress_temp": "35 C",
     "family": "nightshade",
     "water_use": 1.05,
-    "drought_tolerance": 0.4
+    "drought_tolerance": 0.4,
+    "nitrogen": 15,
+    "phosphorus": 3,
+    "potassium": 20
   },
   {
     "type": "crop_profile",
@@ -35,7 +41,10 @@
     "frost_damage_temp": "0 C",
     "frost_kill_temp": "-2 C",
     "heat_stress_temp": "38 C",
-    "family": "nightshade"
+    "family": "nightshade",
+    "nitrogen": 12,
+    "phosphorus": 2,
+    "potassium": 18
   },
   {
     "type": "crop_profile",
@@ -49,7 +58,10 @@
     "heat_stress_temp": "30 C",
     "family": "nightshade",
     "water_use": 1.1,
-    "drought_tolerance": 0.35
+    "drought_tolerance": 0.35,
+    "nitrogen": 15,
+    "phosphorus": 3,
+    "potassium": 22
   },
   {
     "type": "crop_profile",
@@ -63,7 +75,10 @@
     "heat_stress_temp": "38 C",
     "family": "cucurbit",
     "water_use": 1.0,
-    "drought_tolerance": 0.45
+    "drought_tolerance": 0.45,
+    "nitrogen": 12,
+    "phosphorus": 2.5,
+    "potassium": 15
   },
   {
     "type": "crop_profile",
@@ -77,7 +92,10 @@
     "heat_stress_temp": "35 C",
     "family": "grass",
     "water_use": 1.15,
-    "drought_tolerance": 0.55
+    "drought_tolerance": 0.55,
+    "nitrogen": 18,
+    "phosphorus": 3.5,
+    "potassium": 15
   },
   {
     "type": "crop_profile",
@@ -91,7 +109,11 @@
     "heat_stress_temp": "32 C",
     "family": "legume",
     "water_use": 1.05,
-    "drought_tolerance": 0.45
+    "drought_tolerance": 0.45,
+    "nitrogen": 12,
+    "phosphorus": 2.5,
+    "potassium": 10,
+    "nitrogen_fixation": 0.7
   },
   {
     "type": "crop_profile",
@@ -105,7 +127,11 @@
     "heat_stress_temp": "30 C",
     "family": "legume",
     "water_use": 1.1,
-    "drought_tolerance": 0.35
+    "drought_tolerance": 0.35,
+    "nitrogen": 12,
+    "phosphorus": 2.5,
+    "potassium": 9,
+    "nitrogen_fixation": 0.75
   },
   {
     "type": "crop_profile",
@@ -120,7 +146,10 @@
     "heat_stress_temp": "30 C",
     "family": "brassica",
     "water_use": 1.0,
-    "drought_tolerance": 0.45
+    "drought_tolerance": 0.45,
+    "nitrogen": 18,
+    "phosphorus": 3,
+    "potassium": 18
   },
   {
     "type": "crop_profile",
@@ -135,7 +164,10 @@
     "heat_stress_temp": "29 C",
     "family": "brassica",
     "water_use": 1.05,
-    "drought_tolerance": 0.45
+    "drought_tolerance": 0.45,
+    "nitrogen": 18,
+    "phosphorus": 3,
+    "potassium": 18
   },
   {
     "type": "crop_profile",
@@ -150,7 +182,10 @@
     "heat_stress_temp": "32 C",
     "family": "brassica",
     "water_use": 1.0,
-    "drought_tolerance": 0.5
+    "drought_tolerance": 0.5,
+    "nitrogen": 12,
+    "phosphorus": 3,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -164,7 +199,10 @@
     "heat_stress_temp": "28 C",
     "family": "brassica",
     "water_use": 0.9,
-    "drought_tolerance": 0.3
+    "drought_tolerance": 0.3,
+    "nitrogen": 6,
+    "phosphorus": 1.5,
+    "potassium": 7
   },
   {
     "type": "crop_profile",
@@ -177,7 +215,10 @@
     "frost_kill_temp": "-10 C",
     "hardened_kill_temp": "-30 C",
     "heat_stress_temp": "32 C",
-    "family": "brassica"
+    "family": "brassica",
+    "nitrogen": 8,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -191,7 +232,10 @@
     "heat_stress_temp": "29 C",
     "family": "aster",
     "water_use": 1.0,
-    "drought_tolerance": 0.3
+    "drought_tolerance": 0.3,
+    "nitrogen": 8,
+    "phosphorus": 1.5,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -206,7 +250,10 @@
     "heat_stress_temp": "28 C",
     "family": "amaranth",
     "water_use": 1.0,
-    "drought_tolerance": 0.2
+    "drought_tolerance": 0.2,
+    "nitrogen": 10,
+    "phosphorus": 1.5,
+    "potassium": 12
   },
   {
     "type": "crop_profile",
@@ -219,7 +266,10 @@
     "heat_stress_temp": "30 C",
     "family": "carrot",
     "water_use": 1.05,
-    "drought_tolerance": 0.2
+    "drought_tolerance": 0.2,
+    "nitrogen": 15,
+    "phosphorus": 3,
+    "potassium": 20
   },
   {
     "type": "crop_profile",
@@ -234,7 +284,10 @@
     "heat_stress_temp": "30 C",
     "family": "carrot",
     "water_use": 1.05,
-    "drought_tolerance": 0.35
+    "drought_tolerance": 0.35,
+    "nitrogen": 10,
+    "phosphorus": 2,
+    "potassium": 15
   },
   {
     "type": "crop_profile",
@@ -248,7 +301,10 @@
     "heat_stress_temp": "30 C",
     "family": "amaranth",
     "water_use": 1.05,
-    "drought_tolerance": 0.5
+    "drought_tolerance": 0.5,
+    "nitrogen": 12,
+    "phosphorus": 2.5,
+    "potassium": 18
   },
   {
     "type": "crop_profile",
@@ -261,7 +317,10 @@
     "frost_kill_temp": "-10 C",
     "hardened_kill_temp": "-25 C",
     "heat_stress_temp": "32 C",
-    "family": "aster"
+    "family": "aster",
+    "nitrogen": 8,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -275,7 +334,10 @@
     "heat_stress_temp": "32 C",
     "family": "allium",
     "water_use": 1.05,
-    "drought_tolerance": 0.3
+    "drought_tolerance": 0.3,
+    "nitrogen": 10,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -290,7 +352,10 @@
     "heat_stress_temp": "32 C",
     "family": "allium",
     "water_use": 1.0,
-    "drought_tolerance": 0.3
+    "drought_tolerance": 0.3,
+    "nitrogen": 10,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -305,7 +370,10 @@
     "heat_stress_temp": "34 C",
     "family": "grass",
     "water_use": 1.15,
-    "drought_tolerance": 0.55
+    "drought_tolerance": 0.55,
+    "nitrogen": 11,
+    "phosphorus": 2.5,
+    "potassium": 8
   },
   {
     "type": "crop_profile",
@@ -320,7 +388,10 @@
     "heat_stress_temp": "34 C",
     "family": "grass",
     "water_use": 1.15,
-    "drought_tolerance": 0.55
+    "drought_tolerance": 0.55,
+    "nitrogen": 11,
+    "phosphorus": 2.5,
+    "potassium": 8
   },
   {
     "type": "crop_profile",
@@ -334,7 +405,10 @@
     "heat_stress_temp": "32 C",
     "family": "knotweed",
     "water_use": 1.0,
-    "drought_tolerance": 0.55
+    "drought_tolerance": 0.55,
+    "nitrogen": 6,
+    "phosphorus": 1.5,
+    "potassium": 6
   },
   {
     "type": "crop_profile",
@@ -348,7 +422,10 @@
     "family": "grass",
     "water_use": 1.2,
     "drought_tolerance": 0.2,
-    "flood_tolerant": true
+    "flood_tolerant": true,
+    "nitrogen": 8,
+    "phosphorus": 2,
+    "potassium": 8
   },
   {
     "type": "crop_profile",
@@ -361,7 +438,10 @@
     "heat_stress_temp": "36 C",
     "family": "aster",
     "water_use": 1.05,
-    "drought_tolerance": 0.45
+    "drought_tolerance": 0.45,
+    "nitrogen": 10,
+    "phosphorus": 2.5,
+    "potassium": 12
   },
   {
     "type": "crop_profile",
@@ -375,7 +455,10 @@
     "heat_stress_temp": "37 C",
     "family": "mallow",
     "water_use": 1.15,
-    "drought_tolerance": 0.65
+    "drought_tolerance": 0.65,
+    "nitrogen": 15,
+    "phosphorus": 3,
+    "potassium": 14
   },
   {
     "type": "crop_profile",
@@ -386,7 +469,10 @@
     "frost_damage_temp": "-1 C",
     "frost_kill_temp": "-3 C",
     "heat_stress_temp": "35 C",
-    "family": "hemp"
+    "family": "hemp",
+    "nitrogen": 15,
+    "phosphorus": 3,
+    "potassium": 12
   },
   {
     "type": "crop_profile",
@@ -401,7 +487,10 @@
     "heat_stress_temp": "34 C",
     "family": "hemp",
     "water_use": 1.05,
-    "drought_tolerance": 0.5
+    "drought_tolerance": 0.5,
+    "nitrogen": 12,
+    "phosphorus": 2.5,
+    "potassium": 12
   },
   {
     "type": "crop_profile",
@@ -413,7 +502,10 @@
     "frost_damage_temp": "-4 C",
     "frost_kill_temp": "-8 C",
     "heat_stress_temp": "30 C",
-    "family": "poppy"
+    "family": "poppy",
+    "nitrogen": 8,
+    "phosphorus": 2,
+    "potassium": 8
   },
   {
     "type": "crop_profile",
@@ -427,7 +519,10 @@
     "heat_stress_temp": "32 C",
     "family": "aster",
     "water_use": 1.0,
-    "drought_tolerance": 0.45
+    "drought_tolerance": 0.45,
+    "nitrogen": 15,
+    "phosphorus": 3,
+    "potassium": 15
   },
   {
     "type": "crop_profile",
@@ -439,7 +534,10 @@
     "frost_damage_temp": "-1 C",
     "frost_kill_temp": "-3 C",
     "heat_stress_temp": "34 C",
-    "family": "aster"
+    "family": "aster",
+    "nitrogen": 8,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -454,7 +552,10 @@
     "heat_stress_temp": "34 C",
     "family": "rose",
     "water_use": 1.0,
-    "drought_tolerance": 0.5
+    "drought_tolerance": 0.5,
+    "nitrogen": 6,
+    "phosphorus": 1.5,
+    "potassium": 8
   },
   {
     "type": "crop_profile",
@@ -469,7 +570,10 @@
     "heat_stress_temp": "32 C",
     "family": "heath",
     "water_use": 1.0,
-    "drought_tolerance": 0.4
+    "drought_tolerance": 0.4,
+    "nitrogen": 5,
+    "phosphorus": 1,
+    "potassium": 6
   },
   {
     "type": "crop_profile",
@@ -484,7 +588,10 @@
     "heat_stress_temp": "36 C",
     "family": "none",
     "water_use": 0.95,
-    "drought_tolerance": 0.55
+    "drought_tolerance": 0.55,
+    "nitrogen": 6,
+    "phosphorus": 1.5,
+    "potassium": 8
   },
   {
     "type": "crop_profile",
@@ -497,7 +604,10 @@
     "frost_kill_temp": "-8 C",
     "hardened_kill_temp": "-30 C",
     "heat_stress_temp": "33 C",
-    "family": "none"
+    "family": "none",
+    "nitrogen": 10,
+    "phosphorus": 2,
+    "potassium": 10
   },
   {
     "type": "crop_profile",
@@ -512,7 +622,10 @@
     "heat_stress_temp": "36 C",
     "family": "none",
     "water_use": 0.85,
-    "drought_tolerance": 0.6
+    "drought_tolerance": 0.6,
+    "nitrogen": 5,
+    "phosphorus": 1,
+    "potassium": 6
   },
   {
     "type": "crop_profile",
@@ -527,7 +640,10 @@
     "heat_stress_temp": "38 C",
     "family": "grass",
     "water_use": 1.1,
-    "drought_tolerance": 0.5
+    "drought_tolerance": 0.5,
+    "nitrogen": 12,
+    "phosphorus": 2,
+    "potassium": 12
   },
   {
     "type": "crop_profile",
@@ -542,7 +658,10 @@
     "heat_stress_temp": "45 C",
     "family": "cactus",
     "water_use": 0.4,
-    "drought_tolerance": 0.85
+    "drought_tolerance": 0.85,
+    "nitrogen": 2,
+    "phosphorus": 0.5,
+    "potassium": 3
   },
   {
     "type": "crop_profile",
@@ -558,7 +677,10 @@
     "family": "none",
     "water_use": 1.2,
     "drought_tolerance": 0.2,
-    "flood_tolerant": true
+    "flood_tolerant": true,
+    "nitrogen": 5,
+    "phosphorus": 1,
+    "potassium": 5
   },
   {
     "type": "crop_profile",
@@ -572,7 +694,10 @@
     "heat_stress_temp": "30 C",
     "family": "fungus",
     "water_use": 0.3,
-    "drought_tolerance": 0.3
+    "drought_tolerance": 0.3,
+    "nitrogen": 0,
+    "phosphorus": 0,
+    "potassium": 0
   },
   {
     "type": "crop_profile",
@@ -586,6 +711,9 @@
     "heat_stress_temp": "60 C",
     "family": "mycus",
     "water_use": 0.5,
-    "drought_tolerance": 0.9
+    "drought_tolerance": 0.9,
+    "nitrogen": 0,
+    "phosphorus": 0,
+    "potassium": 0
   }
 ]

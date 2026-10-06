@@ -49,14 +49,19 @@ Main code: `src/farming.cpp`, `src/crop_profile.cpp`, `map::grow_plant` and `map
 - **Harvest** now follows the average shortage over the growing days (the law of the minimum; nutrients and light join in parts 3 and 4).
 - **Symptoms.** Wilting looks the same from drought and from root rot; Survival 3+ tells them apart by the soil.
 
-### Part 3: soil nutrients, rotation and disease (Planned)
+### Part 3: soil nutrients, rotation and disease (Written)
 
-- Nitrogen, phosphorus, potassium and pH per plot, kept between crops.
-- Slow natural release from soil organic matter; nitrogen leaches with heavy rain.
-- Beans and peas fix their own nitrogen and leave some for the next crop.
-- Fertilizers become soil amendments with realistic nutrient content: compost, manure, urine, wood ash, bone meal, commercial fertilizer. Too much fast fertilizer burns plants.
-- Harvest set by the scarcest of water, nutrients and light (law of the minimum).
-- Plant families build up soil disease when repeated; rotation and fallow let it fade.
+- **Nutrients per plot**, kept between crops: plant-available nitrogen, phosphorus and potassium (g/m2), nitrogen locked in organic matter, and pH. A fresh bed starts as ordinary garden soil (N 10, P 4, K 15, organic N 500, pH 6.5).
+- **Crops take up nutrients as they grow**, spread over the growth up to harvest. Each crop profile lists its uptake from published figures (kg/ha divided by ten): corn 18 g N, potatoes 15 g N and 22 g K, lettuce 8 g N, and so on.
+- **Soil life** releases about 2.5% of the organic nitrogen a year at 20 C, doubling every 10 C warmer and stopping when frozen. Phosphorus and potassium slowly weather back toward their starting level.
+- **Leaching**: nitrate leaves with water draining through the bed, so heavy rain or overwatering wastes nitrogen.
+- **pH**: nutrients are fully available between pH 6 and 7, less outside it. Wood ash and bone meal raise pH; ammonium fertilizers lower it.
+- **Legumes** (beans, peas) get most of their nitrogen from the air and leave 3 g/m2 for the next crop.
+- **Fertilizers are soil amendments** (`data/json/farming/soil_amendments.json`) with realistic content and a dose per application sized for one square meter: 10-10-10 granules (two handfuls, about 50 g), compost tea, manure (2 kg), cow pies, poultry litter, insect frass, wood ash (200 g), bone meal, saltpeter, potash, ammonium nitrate and seaweed. Manure, ash, bone meal, seaweed and the fertilizer chemicals can now be used on plots. Dog droppings cannot (parasites).
+- **Fertilizer burn**: soluble fertilizers that push available nitrogen above 25 g/m2 scorch the plant.
+- **Harvest** follows the scarcest of water and the three nutrients on each growing day (law of the minimum). Shortages also slow growth.
+- **Crop rotation and disease.** Each bed remembers its last four crops' plant families. Every crop leaves disease pressure for its family in the soil, halving each year. Plants catch soil-borne diseases more often where their family grew recently and in wet weather. A diseased plant loses health daily and yields less. Pulling it up (new menu option) stops it. Survival 2+ warns before planting the same family again.
+- **Symptoms.** Survival 2+ sees nutrient-specific signs (yellowing older leaves, purple tinge, scorched edges); 4+ names the shortage. Survival 3+ recognizes each family's disease: late blight, clubroot, powdery mildew, white rot, rust, root rot, leaf blight, downy mildew.
 
 ### Part 4: light (Planned)
 

@@ -2,6 +2,10 @@
 #ifndef CATA_SRC_SOIL_H
 #define CATA_SRC_SOIL_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 class JsonObject;
 class JsonOut;
 
@@ -19,6 +23,19 @@ struct soil_state {
     int wet_days = 0;
     /** Mulch covers the soil until this day; -1 for none. */
     int mulch_until = -1;
+
+    /** Plant-available nutrients in the root zone, grams per square meter. Negative: not set. */
+    double nitrogen = -1.0;
+    double phosphorus = -1.0;
+    double potassium = -1.0;
+    /** Nitrogen bound in soil organic matter, released slowly as it decays. */
+    double organic_nitrogen = -1.0;
+    /** Soil acidity. */
+    double ph = -1.0;
+    /** Plant families grown here, oldest first; only the last few are kept. */
+    std::vector<std::string> history;
+    /** Soil-borne disease built up by each plant family, fading over the years. */
+    std::map<std::string, double> disease;
 
     void serialize( JsonOut &jsout ) const;
     void deserialize( const JsonObject &jo );

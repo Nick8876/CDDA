@@ -22,6 +22,7 @@
 #include "mapdata.h"
 #include "messages.h"
 #include "options.h"
+#include "rng.h"
 #include "soil.h"
 #include "string_formatter.h"
 #include "translations.h"
@@ -53,6 +54,12 @@ constexpr const char *var_limit_sum = "farm_limit_sum";
 constexpr const char *var_limit_weight = "farm_limit_weight";
 constexpr const char *var_drought_day = "farm_drought_day";
 constexpr const char *var_rot_day = "farm_rot_day";
+constexpr const char *var_n_factor = "farm_n_factor";
+constexpr const char *var_p_factor = "farm_p_factor";
+constexpr const char *var_k_factor = "farm_k_factor";
+constexpr const char *var_infected_day = "farm_infected_day";
+constexpr const char *var_burn_day = "farm_burn_day";
+constexpr const char *var_matured = "farm_matured";
 
 // Days of cold it takes a hardy plant to fully acclimate.
 constexpr double hardening_days = 14.0;
@@ -97,6 +104,35 @@ constexpr double greenhouse_light_transmission = 0.8;
 constexpr double indoor_radiation_mm = 1.0;
 // Converts MJ/m2 of solar energy into the mm of water it could evaporate (1 / 2.45 MJ/kg).
 constexpr double mj_to_evaporation_mm = 0.408;
+
+// Soil fertility of an ordinary, decent garden bed: plant-available nutrients in g/m2 and pH.
+constexpr double initial_nitrogen = 10.0;
+constexpr double initial_phosphorus = 4.0;
+constexpr double initial_potassium = 15.0;
+// Nitrogen held in soil organic matter (about 0.15% of the topsoil's weight).
+constexpr double initial_organic_nitrogen = 500.0;
+constexpr double initial_ph = 6.5;
+// Share of the organic nitrogen soil life releases per year at 20 C; doubles every 10 C warmer.
+constexpr double mineralization_per_year = 0.025;
+// Phosphorus and potassium weathering out of soil minerals, g/m2 per year at 20 C, which
+// slowly refills a depleted bed back toward its background level.
+constexpr double phosphorus_weathering_per_year = 0.5;
+constexpr double potassium_weathering_per_year = 3.0;
+// Nitrogen a legume crop leaves behind in its roots and nodules.
+constexpr double legume_nitrogen_credit = 3.0;
+// Above this much available nitrogen, soluble fertilizer salts scorch the roots.
+constexpr double burn_nitrogen = 25.0;
+// Soil-borne disease halves each year its host plants are kept out of the bed.
+constexpr double disease_half_life_days = 365.0;
+// Daily chance a crop catches a disease: spores drift in anywhere, and build up in beds
+// where the same family keeps growing.  Wet weather doubles it.
+constexpr double base_infection_per_day = 0.0005;
+constexpr double pressure_infection_per_day = 0.003;
+// Daily health a diseased plant loses, and the share of growth it can still turn into crop.
+constexpr double disease_damage_per_day = 1.5;
+constexpr double disease_growth_factor = 0.8;
+// How many past crops a bed remembers.
+constexpr size_t history_length = 4;
 
 struct plot_info {
     double capacity = ground_capacity_mm;
@@ -184,7 +220,129 @@ void init_soil( soil_state &soil, const plot_info &plot )
     if( soil.water_mm < 0.0 ) {
         soil.water_mm = 0.7 * plot.capacity;
     }
+    if( soil.nitrogen < 0.0 ) {
+        soil.nitrogen = initial_nitrogen;
+    }
+    if( soil.phosphorus < 0.0 ) {
+        soil.phosphorus = initial_phosphorus;
+    }
+    if( soil.potassium < 0.0 ) {
+        soil.potassium = initial_potassium;
+    }
+    if( soil.organic_nitrogen < 0.0 ) {
+        soil.organic_nitrogen = initial_organic_nitrogen;
+    }
+    if( soil.ph < 0.0 ) {
+        soil.ph = initial_ph;
+    }
 }
+
+/** How active soil life is at this daily mean temperature (1 at 20 C, half as active per 10 C cooler). */
+double soil_activity( double mean_c )
+{
+    if( mean_c <= 0.0 ) {
+        return 0.0;
+    }
+    return std::min( 2.0, std::pow( 2.0, ( mean_c - 20.0 ) / 10.0 ) );
+}
+
+/** Share of the soil's nutrients plants can actually take up at this pH; best between 6 and 7. */
+double ph_availability( double ph )
+{
+    const double off = ph < 6.0 ? 6.0 - ph : ph > 7.0 ? ph - 7.0 : 0.0;
+    return std::clamp( 1.0 - 0.3 * off, 0.3, 1.0 );
+}
+
+/** One day of soil life: organic matter releases nutrients, rain washes nitrate out, disease fades. */
+void soil_biology_day( soil_state &soil, const plot_info &plot, double mean_c, double drained_mm )
+{
+    const double activity = soil_activity( mean_c );
+    const double released = soil.organic_nitrogen * mineralization_per_year / 365.0 * activity;
+    soil.organic_nitrogen -= released;
+    soil.nitrogen += released;
+    if( soil.phosphorus < initial_phosphorus ) {
+        soil.phosphorus += phosphorus_weathering_per_year / 365.0 * activity;
+    }
+    if( soil.potassium < initial_potassium ) {
+        soil.potassium += potassium_weathering_per_year / 365.0 * activity;
+    }
+    if( drained_mm > 0.0 ) {
+        // Nitrate dissolves in the soil water and leaves with whatever drains out.
+        soil.nitrogen -= soil.nitrogen * std::min( 0.5, drained_mm / ( plot.capacity + drained_mm ) );
+    }
+    static const double daily_fade = std::pow( 0.5, 1.0 / disease_half_life_days );
+    for( auto &pressure : soil.disease ) {
+        pressure.second *= daily_fade;
+    }
+}
+
+/**
+ * Take up the nutrients for a day's share of the crop's growth.
+ * @return Each nutrient's supply as a share of what the plant wanted (0 to 1).
+ */
+std::tuple<double, double, double> take_nutrients( soil_state &soil, const crop_profile &profile,
+        double share_of_crop )
+{
+    const double availability = ph_availability( soil.ph );
+    const auto take = [&]( double & pool, double need ) {
+        if( need <= 0.0 ) {
+            return 1.0;
+        }
+        const double got = std::min( need, std::max( 0.0, pool ) * availability );
+        pool -= got;
+        return got / need;
+    };
+    const double n = take( soil.nitrogen,
+                           profile.nitrogen * ( 1.0 - profile.nitrogen_fixation ) * share_of_crop );
+    const double p = take( soil.phosphorus, profile.phosphorus * share_of_crop );
+    const double k = take( soil.potassium, profile.potassium * share_of_crop );
+    return { n, p, k };
+}
+
+/** The bed remembers the crop that just left it: history, disease left in the soil, legume nitrogen. */
+void record_crop_end( soil_state &soil, const crop_profile &profile, bool matured )
+{
+    soil.history.push_back( profile.family );
+    while( soil.history.size() > history_length ) {
+        soil.history.erase( soil.history.begin() );
+    }
+    if( profile.family != "none" ) {
+        soil.disease[profile.family] += 1.0;
+    }
+    if( matured && profile.nitrogen_fixation > 0.0 ) {
+        soil.nitrogen += legume_nitrogen_credit;
+    }
+}
+
+double disease_pressure( const soil_state &soil, const std::string &family )
+{
+    const auto found = soil.disease.find( family );
+    return found == soil.disease.end() ? 0.0 : found->second;
+}
+
+/** What a diseased plant of this family looks like, and what an expert would call it. */
+std::pair<std::string, std::string> disease_symptoms( const std::string &family )
+{
+    if( family == "nightshade" ) {
+        return { _( "Dark, spreading lesions with pale edges cover the leaves and stems." ), _( "late blight" ) };
+    } else if( family == "brassica" ) {
+        return { _( "It wilts on sunny days, and the base of the roots is swollen and knobby." ), _( "clubroot" ) };
+    } else if( family == "cucurbit" ) {
+        return { _( "White, powdery patches are spreading over the leaves." ), _( "powdery mildew" ) };
+    } else if( family == "allium" ) {
+        return { _( "The leaves are yellowing and there's a fluffy white rot at the base." ), _( "white rot" ) };
+    } else if( family == "grass" ) {
+        return { _( "Orange-brown pustules have broken out along the leaves." ), _( "rust" ) };
+    } else if( family == "legume" ) {
+        return { _( "The lower stem and roots are rotting reddish-brown." ), _( "root rot" ) };
+    } else if( family == "carrot" ) {
+        return { _( "Dark spots with yellow halos are spreading across the leaves." ), _( "leaf blight" ) };
+    } else if( family == "aster" || family == "amaranth" ) {
+        return { _( "Pale patches on top of the leaves have gray-purple fuzz underneath." ), _( "downy mildew" ) };
+    }
+    return { _( "Brown spots are spreading across the leaves." ), _( "a fungal leaf spot" ) };
+}
+
 
 /**
  * Finish a day of soil water once rain has come in: take out what the plants and soil lose,
@@ -230,7 +388,8 @@ void soil_catch_up( soil_state &soil, const plot_info &plot, const tripoint_abs_
         if( mulched( soil, day ) ) {
             evaporation *= mulch_bare_soil_factor;
         }
-        end_water_day( soil, plot, evaporation );
+        const double drained = end_water_day( soil, plot, evaporation );
+        soil_biology_day( soil, plot, w.mean_c, drained );
     }
     soil.last_day = std::max( soil.last_day, until_day );
 }
@@ -298,6 +457,7 @@ void init_state( item &seed )
 void kill_plant( map &here, const tripoint_bub_ms &p, item &seed, const std::string &cause )
 {
     const std::string pname = seed.get_plant_name();
+    record_crop_end( here.get_soil( p ), profile_of( seed.typeId() ), false );
     add_msg_if_player_sees( p, _( "The %1$s has been killed by %2$s." ), pname, cause );
     farming::drop_cover( here, p, seed );
     const furn_id &furn = here.furn( p );
@@ -428,6 +588,15 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     day = std::max( day, today - max_catch_up_days );
 
     const std::vector<double> thresholds = detail::stage_thresholds( seed_type );
+    // Nutrient uptake is spread over the growth up to harvest.
+    double harvest_gdd = thresholds.empty() ? 0.0 : thresholds.back();
+    const auto &stages = seed_type->seed->get_growth_stages();
+    for( size_t i = 0; i < stages.size() && i < thresholds.size(); ++i ) {
+        if( stages[i].first.str() == "GROWTH_HARVEST" ) {
+            harvest_gdd = thresholds[i];
+        }
+    }
+    harvest_gdd = std::max( harvest_gdd, 1.0 );
     const tripoint_abs_omt omt = ground_omt( here.get_abs( p ) );
     const plot_info plot = plot_at( here, p );
     const bool greenhouse = plot.greenhouse;
@@ -445,6 +614,11 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     double hardening = seed.get_var( var_hardening, 0.0 );
     double snow = seed.get_var( var_snow, 0.0 );
     double water_factor = seed.get_var( var_water_factor, 1.0 );
+    double n_factor = seed.get_var( var_n_factor, 1.0 );
+    double p_factor = seed.get_var( var_p_factor, 1.0 );
+    double k_factor = seed.get_var( var_k_factor, 1.0 );
+    bool infected = seed.has_var( var_infected_day );
+    bool matured = seed.get_var( var_matured, 0.0 ) > 0.0;
     double limit_sum = seed.get_var( var_limit_sum, 0.0 );
     double limit_weight = seed.get_var( var_limit_weight, 0.0 );
     bool died = false;
@@ -493,11 +667,30 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
                 kc *= mulch_et_factor;
             }
             // A thirsty plant closes its pores and transpires less (FAO-56 Ks).
-            end_water_day( soil, plot, reference_et_mm( w, mean, plot ) * kc * water_factor );
+            const double drained = end_water_day( soil, plot,
+                                                  reference_et_mm( w, mean, plot ) * kc * water_factor );
+            soil_biology_day( soil, plot, mean, drained );
             soil.last_day = day + 1;
         }
 
+        // Soil-borne disease, worse where the family grew recently and in wet weather.
+        if( !infected && profile.family != "none" && stage != "GROWTH_HARVEST" ) {
+            double chance = base_infection_per_day + pressure_infection_per_day *
+                            disease_pressure( soil, profile.family );
+            if( w.rain_mm > 1.0 || soil.wet_days > 0 ) {
+                chance *= 2.0;
+            }
+            if( rng_float( 0.0, 1.0 ) < chance ) {
+                infected = true;
+                seed.set_var( var_infected_day, static_cast<double>( day ) );
+            }
+        }
+
         double damage = 0.0;
+        if( infected ) {
+            damage += disease_damage_per_day;
+            cause = _( "disease" );
+        }
         if( soil.water_mm < wilting_point( plot.capacity, profile.drought_tolerance ) ) {
             damage += 5.0;
             seed.set_var( var_drought_day, static_cast<double>( day ) );
@@ -553,16 +746,30 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
         }
 
         const double potential_gdd = profile.degree_days( low, high ) * scale;
-        // Water stress slows development somewhat, and growth (the harvest) a lot.
-        last_gdd = potential_gdd * ( 0.4 + 0.6 * water_factor );
+        // Feed the day's growth from the soil, unless the crop is already ripe.
+        if( stage != "GROWTH_HARVEST" && potential_gdd > 0.0 ) {
+            std::tie( n_factor, p_factor, k_factor ) =
+                take_nutrients( soil, profile, potential_gdd / harvest_gdd );
+        }
+        const double nutrient_factor = std::min( { n_factor, p_factor, k_factor } );
+        // Liebig's law of the minimum: the scarcest of water and nutrients sets the day's growth.
+        double limit = std::min( water_factor, nutrient_factor );
+        if( infected ) {
+            limit *= disease_growth_factor;
+        }
+        // Shortages slow development somewhat, and growth (the harvest) a lot.
+        last_gdd = potential_gdd * ( 0.4 + 0.6 * limit );
         gdd += last_gdd;
         if( stage != "GROWTH_SEED" && stage != "GROWTH_HARVEST" ) {
             // The harvest follows the worst shortage on each growing day, weighted by growth.
-            limit_sum += potential_gdd * water_factor;
+            limit_sum += potential_gdd * limit;
             limit_weight += potential_gdd;
         }
+        if( stage == "GROWTH_MATURE" || stage == "GROWTH_HARVEST" ) {
+            matured = true;
+        }
         // Growing, unstressed plants slowly replace damaged leaves.
-        if( frost <= 0.0 && damage <= 0.0 && last_gdd > 0.0 && water_factor > 0.5 ) {
+        if( frost <= 0.0 && damage <= 0.0 && last_gdd > 0.0 && limit > 0.5 ) {
             health = std::min( 100.0, health + 2.0 );
         }
     }
@@ -580,6 +787,10 @@ bool simulate_plant( map &here, const tripoint_bub_ms &p, item &seed )
     seed.set_var( var_hardening, hardening );
     seed.set_var( var_snow, snow );
     seed.set_var( var_water_factor, water_factor );
+    seed.set_var( var_n_factor, n_factor );
+    seed.set_var( var_p_factor, p_factor );
+    seed.set_var( var_k_factor, k_factor );
+    seed.set_var( var_matured, matured ? 1.0 : 0.0 );
     seed.set_var( var_limit_sum, limit_sum );
     seed.set_var( var_limit_weight, limit_weight );
     return true;
@@ -688,6 +899,49 @@ std::vector<std::string> describe_plant( map &here, const tripoint_bub_ms &p,
             lines.push_back( string_format(
                                  n_gettext( "It should be ready after about %d warm day.",
                                             "It should be ready after about %d warm days.", days ), days ) );
+        }
+    }
+
+    // Nutrient shortages.  Pale, yellowing leaves could be many things to a beginner.
+    const double n_factor = seed.get_var( var_n_factor, 1.0 );
+    const double p_factor = seed.get_var( var_p_factor, 1.0 );
+    const double k_factor = seed.get_var( var_k_factor, 1.0 );
+    constexpr double shortage = 0.85;
+    if( std::min( { n_factor, p_factor, k_factor } ) < shortage ) {
+        if( skill < 2 ) {
+            lines.emplace_back( _( "The leaves are pale and it isn't growing well." ) );
+        } else {
+            if( n_factor < shortage ) {
+                lines.emplace_back( skill >= 4 ?
+                                    _( "Older, lower leaves are turning yellow: it's short of nitrogen." ) :
+                                    _( "Older, lower leaves are turning yellow." ) );
+            }
+            if( p_factor < shortage ) {
+                lines.emplace_back( skill >= 4 ?
+                                    _( "The leaves have a dull purple tinge and it's stunted: it's short of phosphorus." ) :
+                                    _( "The leaves have a dull purple tinge and it's stunted." ) );
+            }
+            if( k_factor < shortage ) {
+                lines.emplace_back( skill >= 4 ?
+                                    _( "The leaf edges are brown and scorched: it's short of potassium." ) :
+                                    _( "The leaf edges are brown and scorched." ) );
+            }
+        }
+    }
+    if( today - seed.get_var( var_burn_day, -1000.0 ) <= 5.0 ) {
+        lines.emplace_back( skill >= 2 ?
+                            _( "The leaf tips are burned brown: too much fertilizer." ) :
+                            _( "The leaf tips have gone brown." ) );
+    }
+    if( seed.has_var( var_infected_day ) ) {
+        const std::pair<std::string, std::string> symptoms = disease_symptoms(
+                    profile_of( seed.typeId() ).family );
+        if( skill >= 3 ) {
+            lines.push_back( symptoms.first + "  " + string_format(
+                                 _( "It's %s.  Pulling it up would keep the rest of the bed from catching it." ),
+                                 symptoms.second ) );
+        } else {
+            lines.emplace_back( _( "Spots and rotting patches are spreading over the leaves." ) );
         }
     }
 
@@ -866,6 +1120,85 @@ void add_mulch( map &here, const tripoint_bub_ms &p )
     soil_state &soil = here.get_soil( p );
     init_soil( soil, plot_at( here, p ) );
     soil.mulch_until = day_index( calendar::turn ) + to_days<int>( calendar::season_length() );
+}
+
+int amendment_dose( const itype_id &amendment )
+{
+    return std::max( 1, soil_amendment::for_item( amendment ).dose );
+}
+
+bool apply_amendment( map &here, const tripoint_bub_ms &p, const itype_id &amendment, int units,
+                      item *seed )
+{
+    const soil_amendment &what = soil_amendment::for_item( amendment );
+    const plot_info plot = plot_at( here, p );
+    soil_state &soil = here.get_soil( p );
+    init_soil( soil, plot );
+    soil.nitrogen += what.nitrogen * units;
+    soil.phosphorus += what.phosphorus * units;
+    soil.potassium += what.potassium * units;
+    soil.organic_nitrogen += what.organic_nitrogen * units;
+    soil.ph = std::clamp( soil.ph + what.ph_change * units, 4.0, 9.0 );
+
+    if( seed == nullptr || !what.burns || soil.nitrogen <= burn_nitrogen ) {
+        return true;
+    }
+    // Too much soluble fertilizer draws water out of the roots and scorches them.
+    init_state( *seed );
+    const double health = seed->get_var( var_health, 100.0 ) -
+                          std::min( 60.0, ( soil.nitrogen - burn_nitrogen ) * 4.0 );
+    seed->set_var( var_health, health );
+    seed->set_var( var_burn_day, static_cast<double>( day_index( calendar::turn ) ) );
+    if( health <= 0.0 ) {
+        kill_plant( here, p, *seed, _( "fertilizer burn" ) );
+        return false;
+    }
+    return true;
+}
+
+void on_crop_removed( map &here, const tripoint_bub_ms &p, const item &seed )
+{
+    if( !seed.type->seed ) {
+        return;
+    }
+    record_crop_end( here.get_soil( p ), profile_of( seed.typeId() ),
+                     seed.get_var( var_matured, 1.0 ) > 0.0 );
+}
+
+void pull_up_plant( map &here, const tripoint_bub_ms &p, item &seed )
+{
+    record_crop_end( here.get_soil( p ), profile_of( seed.typeId() ), false );
+    drop_cover( here, p, seed );
+    const furn_id &furn = here.furn( p );
+    furn_str_id base = furn_str_id::NULL_ID();
+    if( furn->plant ) {
+        base = furn->plant->base;
+    }
+    // Clears the seed and any fertilizer; the seed reference is dead after this.
+    here.i_clear( p );
+    here.furn_set( p, base );
+    here.add_item_or_charges( p, item( itype_withered, calendar::turn ) );
+}
+
+std::string rotation_warning( map &here, const tripoint_bub_ms &p, const itype_id &seed_type,
+                              int survival_skill )
+{
+    if( survival_skill < 2 || !seed_type->seed ) {
+        return std::string();
+    }
+    const crop_profile &profile = profile_of( seed_type );
+    if( profile.family == "none" ) {
+        return std::string();
+    }
+    const soil_state &soil = here.get_soil( p );
+    const bool recent = !soil.history.empty() && soil.history.back() == profile.family;
+    if( recent || disease_pressure( soil, profile.family ) >= 1.0 ) {
+        return string_format(
+                   _( "Plants of the same family as %s grew here recently.  Diseases they left in the soil "
+                      "could attack this crop; it would be safer to plant something else here this year." ),
+                   seed_type->seed->plant_name.translated() );
+    }
+    return std::string();
 }
 
 itype_id cover_of( const item &seed )

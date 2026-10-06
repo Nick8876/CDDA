@@ -80,6 +80,26 @@ bool has_mulch( map &here, const tripoint_bub_ms &p );
 /** Spread mulch on the plot; it lasts about a season. */
 void add_mulch( map &here, const tripoint_bub_ms &p );
 
+/** Units of this fertilizer one application uses. */
+int amendment_dose( const itype_id &amendment );
+/**
+ * Work units of a fertilizer or other soil amendment into the plot.
+ * @param seed The plant growing there, if any; overapplied fertilizer salts can burn it.
+ * @return false if the plant was killed by fertilizer burn (and has been removed).
+ */
+bool apply_amendment( map &here, const tripoint_bub_ms &p, const itype_id &amendment, int units,
+                      item *seed );
+/** Call when a crop is harvested so the plot remembers what grew there. */
+void on_crop_removed( map &here, const tripoint_bub_ms &p, const item &seed );
+/** Pull a plant out of the ground, e.g. to stop a disease spreading.  Removes it from the map. */
+void pull_up_plant( map &here, const tripoint_bub_ms &p, item &seed );
+/**
+ * A warning when the same plant family grew in this bed recently (crop rotation), or empty.
+ * Only growers with some Survival skill think of it.
+ */
+std::string rotation_warning( map &here, const tripoint_bub_ms &p, const itype_id &seed_type,
+                              int survival_skill );
+
 /** Whether the tile is inside a greenhouse. */
 bool is_greenhouse( const map &here, const tripoint_bub_ms &p );
 

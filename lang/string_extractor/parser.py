@@ -252,6 +252,7 @@ parsers = {
     "skill_boost": dummy_parser,
     "skill_display_type": parse_skill_display_type,
     "snippet": parse_snippet,
+    "soil_amendment": dummy_parser,
     "sound_effect": dummy_parser,
     "speech": parse_speech,
     "speed_description": parse_speed_description,

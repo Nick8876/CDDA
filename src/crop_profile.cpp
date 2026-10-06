@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
 
 #include "debug.h"
 #include "flexbuffer_json.h"
@@ -12,6 +13,9 @@
 namespace
 {
 generic_factory<crop_profile> crop_profile_factory( "crop_profile" );
+generic_factory<soil_amendment> soil_amendment_factory( "soil_amendment" );
+// Amendments by the item they describe, filled in when loading finishes.
+std::map<itype_id, const soil_amendment *> amendment_by_item;
 } // namespace
 
 template<>
@@ -65,6 +69,10 @@ void crop_profile::load( const JsonObject &jo, std::string_view )
     optional( jo, was_loaded, "water_use", water_use, 1.0 );
     optional( jo, was_loaded, "drought_tolerance", drought_tolerance, 0.5 );
     optional( jo, was_loaded, "flood_tolerant", flood_tolerant, false );
+    optional( jo, was_loaded, "nitrogen", nitrogen, 10.0 );
+    optional( jo, was_loaded, "phosphorus", phosphorus, 2.0 );
+    optional( jo, was_loaded, "potassium", potassium, 10.0 );
+    optional( jo, was_loaded, "nitrogen_fixation", nitrogen_fixation, 0.0 );
 }
 
 void crop_profile::check() const
@@ -77,6 +85,12 @@ void crop_profile::check() const
     }
     if( frost_kill_temp > frost_damage_temp ) {
         debugmsg( "crop_profile %s: frost_kill_temp must not be above frost_damage_temp", id.str() );
+    }
+    if( nitrogen < 0.0 || phosphorus < 0.0 || potassium < 0.0 ) {
+        debugmsg( "crop_profile %s: nutrient demands must not be negative", id.str() );
+    }
+    if( nitrogen_fixation < 0.0 || nitrogen_fixation > 1.0 ) {
+        debugmsg( "crop_profile %s: nitrogen_fixation must be between 0 and 1", id.str() );
     }
     if( water_use <= 0.0 ) {
         debugmsg( "crop_profile %s: water_use must be positive", id.str() );
@@ -148,4 +162,84 @@ double crop_profile::heat_loss( double high_c ) const
     }
     // Each degree over the threshold costs about 4% of the flowers that day.
     return std::clamp( 0.04 * over, 0.0, 0.5 );
+}
+
+template<>
+const soil_amendment &soil_amendment_id::obj() const
+{
+    return soil_amendment_factory.obj( *this );
+}
+
+/** @relates string_id */
+template<>
+bool soil_amendment_id::is_valid() const
+{
+    return soil_amendment_factory.is_valid( *this );
+}
+
+void soil_amendment::load_soil_amendments( const JsonObject &jo, const std::string &src )
+{
+    soil_amendment_factory.load( jo, src );
+}
+
+void soil_amendment::finalize_all()
+{
+    soil_amendment_factory.finalize();
+    amendment_by_item.clear();
+    for( const soil_amendment &amendment : soil_amendment_factory.get_all() ) {
+        amendment_by_item[amendment.item] = &amendment;
+    }
+}
+
+void soil_amendment::reset()
+{
+    soil_amendment_factory.reset();
+    amendment_by_item.clear();
+}
+
+const std::vector<soil_amendment> &soil_amendment::get_all()
+{
+    return soil_amendment_factory.get_all();
+}
+
+const soil_amendment &soil_amendment::for_item( const itype_id &item )
+{
+    const auto found = amendment_by_item.find( item );
+    if( found != amendment_by_item.end() ) {
+        return *found->second;
+    }
+    // A fertilizer nobody described: assume a small dose of a balanced garden feed.
+    static soil_amendment generic = []() {
+        soil_amendment result;
+        result.nitrogen = 2.0;
+        result.phosphorus = 0.5;
+        result.potassium = 1.0;
+        return result;
+    }();
+    return generic;
+}
+
+void soil_amendment::load( const JsonObject &jo, std::string_view )
+{
+    mandatory( jo, was_loaded, "item", item );
+    optional( jo, was_loaded, "dose", dose, 1 );
+    optional( jo, was_loaded, "nitrogen", nitrogen, 0.0 );
+    optional( jo, was_loaded, "phosphorus", phosphorus, 0.0 );
+    optional( jo, was_loaded, "potassium", potassium, 0.0 );
+    optional( jo, was_loaded, "organic_nitrogen", organic_nitrogen, 0.0 );
+    optional( jo, was_loaded, "ph_change", ph_change, 0.0 );
+    optional( jo, was_loaded, "burns", burns, false );
+}
+
+void soil_amendment::check_consistency()
+{
+    for( const soil_amendment &amendment : get_all() ) {
+        if( !amendment.item.is_valid() ) {
+            debugmsg( "soil_amendment %s refers to unknown item %s", amendment.id.str(),
+                      amendment.item.str() );
+        }
+        if( amendment.dose < 1 ) {
+            debugmsg( "soil_amendment %s: dose must be at least 1", amendment.id.str() );
+        }
+    }
 }

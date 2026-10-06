@@ -305,6 +305,7 @@ void DynamicDataLoader::initialize()
     add( "proficiency_migration", &proficiency_migration::load );
     add( "speed_description", &speed_description::load_speed_descriptions );
     add( "crop_profile", &crop_profile::load_crop_profiles );
+    add( "soil_amendment", &soil_amendment::load_soil_amendments );
     add( "mood_face", &mood_face::load_mood_faces );
     add( "skill", &Skill::load_skill );
     add( "skill_display_type", &SkillDisplayType::load );
@@ -728,6 +729,7 @@ void DynamicDataLoader::unload_data()
     mood_face::reset();
     speed_description::reset();
     crop_profile::reset();
+    soil_amendment::reset();
     quality::reset();
     region_settings_river::reset();
     region_settings_lake::reset();
@@ -918,6 +920,7 @@ void DynamicDataLoader::finalize_loaded_data()
             { _( "Relic Procedural Generations" ), &relic_procgen_data::finalize_all },
             { _( "Speed Descriptions" ), &speed_description::finalize_all },
             { _( "Crop profiles" ), &crop_profile::finalize_all },
+            { _( "Soil amendments" ), &soil_amendment::finalize_all },
             { _( "Species" ), &species_type::finalize_all },
             { _( "Scent Types" ), &scent_type::finalize_all },
             { _( "Scores" ), &score::finalize_all },
@@ -970,6 +973,7 @@ void DynamicDataLoader::check_consistency()
             { _( "Vitamins" ), &vitamin::check_consistency },
             { _( "Weather types" ), &weather_types::check_consistency },
             { _( "Crop profiles" ), &crop_profile::check_consistency },
+            { _( "Soil amendments" ), &soil_amendment::check_consistency },
             { _( "Weapon categories" ), &weapon_category::verify_weapon_categories },
             { _( "Effect on conditions" ), &effect_on_conditions::check_consistency },
             { _( "Field types" ), &field_types::check_consistency },

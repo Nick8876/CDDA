@@ -10539,11 +10539,21 @@ void fertilize_plant_activity_actor::finish( player_activity &act, Character &wh
 
     map &here = get_map();
 
+    // Realistic farming applies a proper dose for the bed: a few handfuls of granules,
+    // a couple of kilograms of manure.  Use what's on hand if there's less.
+    int units = 1;
+    if( farming::enabled() ) {
+        const int dose = farming::amendment_dose( fertilizer );
+        const int available = fertilizer->count_by_charges() ?
+                              who.charges_of( fertilizer, dose, craft_reservation::usable_by_automation ) :
+                              who.amount_of( fertilizer, false, dose, craft_reservation::usable_by_automation );
+        units = std::clamp( available, 1, dose );
+    }
     std::list<item> planted;
     if( fertilizer->count_by_charges() ) {
-        planted = who.use_charges( fertilizer, 1, craft_reservation::usable_by_automation );
+        planted = who.use_charges( fertilizer, units, craft_reservation::usable_by_automation );
     } else {
-        planted = who.use_amount( fertilizer, 1, craft_reservation::usable_by_automation );
+        planted = who.use_amount( fertilizer, units, craft_reservation::usable_by_automation );
     }
     if( planted.empty() ) {
         // Every reachable instance is claimed by a live craft
@@ -10568,7 +10578,11 @@ void fertilize_plant_activity_actor::finish( player_activity &act, Character &wh
     }
 
     if( farming::enabled() ) {
-        farming::add_growth( *seed, fertilizerEpoch );
+        // Fertilizer feeds the soil; whether the plant needed it shows in its growth and harvest.
+        if( !farming::apply_amendment( here, plant_position, fertilizer, units, &*seed ) ) {
+            act.set_to_null();
+            return;
+        }
     } else {
         // TODO: item should probably clamp the value on its own
         seed->set_birthday( seed->birthday() - fertilizerEpoch );

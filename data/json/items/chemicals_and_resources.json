@@ -730,6 +730,7 @@
   {
     "type": "ITEM",
     "id": "chem_potassium_chloride",
+    "flags": [ "FERTILIZER" ],
     "category": "chems",
     "price": "6 cent",
     "price_postapoc": "1 cent",
@@ -981,6 +982,7 @@
   {
     "type": "ITEM",
     "id": "chem_ammonium_nitrate",
+    "flags": [ "FERTILIZER" ],
     "category": "chems",
     "price": "1 cent",
     "price_postapoc": "1 cent",
@@ -1012,6 +1014,7 @@
   {
     "type": "ITEM",
     "id": "chem_saltpetre",
+    "flags": [ "FERTILIZER" ],
     "category": "chems",
     "price": "4 cent",
     "price_postapoc": "10 cent",
@@ -1495,6 +1498,7 @@
   {
     "type": "ITEM",
     "id": "ash",
+    "flags": [ "FERTILIZER" ],
     "category": "chems",
     "price": "0 cent",
     "price_postapoc": "0 cent",

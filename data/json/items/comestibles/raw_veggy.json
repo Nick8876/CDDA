@@ -1422,7 +1422,7 @@
     "description": "A handful of slimy seaweed.  It doesn't look edible, but properly dried, it might make for decent kindling.",
     "material": [ "veggy" ],
     "volume": "30 ml",
-    "flags": [ "INEDIBLE" ],
+    "flags": [ "FERTILIZER", "INEDIBLE" ],
     "smoking_result": "dry_seaweed",
     "vitamins": [ [ "veggy_allergen", 1 ] ]
   },

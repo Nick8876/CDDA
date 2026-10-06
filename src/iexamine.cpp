@@ -2757,10 +2757,15 @@ void iexamine::dirtmound( Character &you, const tripoint_bub_ms &examp )
             add_msg( m_info, _( "Plants need sunlight to grow!  You can't plant there." ) );
             return;
         }
-        const ret_val<void> outlook = farming::planting_outlook( here, examp, seed_id,
-                                      static_cast<int>( you.get_skill_level( skill_survival ) ) );
+        const int survival = static_cast<int>( you.get_skill_level( skill_survival ) );
+        const ret_val<void> outlook = farming::planting_outlook( here, examp, seed_id, survival );
         if( !outlook.success() &&
             !query_yn( _( "%s  Plant anyway?" ), outlook.c_str() ) ) {
+            add_msg( _( "You saved your seeds for later." ) );
+            return;
+        }
+        const std::string rotation = farming::rotation_warning( here, examp, seed_id, survival );
+        if( !rotation.empty() && !query_yn( _( "%s  Plant anyway?" ), rotation ) ) {
             add_msg( _( "You saved your seeds for later." ) );
             return;
         }
@@ -2915,6 +2920,9 @@ void iexamine::harvest_plant( Character &you, const tripoint_bub_ms &examp, bool
             const itype &type = *seed->type;
             const double health_factor = farming::enabled() ? farming::harvest_factor( *seed ) : 1.0;
             farming::drop_cover( here, you.pos_bub(), *seed );
+            if( farming::enabled() ) {
+                farming::on_crop_removed( here, examp, *seed );
+            }
             player_activity act( ACT_HARVEST, to_moves<int>( 60_seconds ) );
             you.assign_activity( act );
             here.i_clear( examp );
@@ -3022,7 +3030,7 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
     const bool mulched = farming::has_mulch( here, examp );
 
     enum plant_action : int {
-        HARVEST, FERTILIZE, COVER, UNCOVER, WATER, MULCH
+        HARVEST, FERTILIZE, COVER, UNCOVER, WATER, MULCH, PULL
     };
     uilist menu;
     menu.text = string_join( farming::describe_plant( here, examp, *seed, you ), "\n" );
@@ -3054,9 +3062,17 @@ static void aggie_plant_menu( Character &you, const tripoint_bub_ms &examp )
     } else {
         menu.addentry( UNCOVER, true, MENU_AUTOASSIGN, _( "Take the %s off" ), cover->nname( 1 ) );
     }
+    menu.addentry( PULL, true, MENU_AUTOASSIGN, _( "Pull up the %s" ), pname );
     menu.query();
 
     switch( menu.ret ) {
+        case PULL:
+            if( query_yn( _( "Really pull up the %s?  It will die." ), pname ) ) {
+                farming::pull_up_plant( here, examp, *seed );
+                you.mod_moves( -to_moves<int>( 30_seconds ) );
+                add_msg( _( "You pull up the %s." ), pname );
+            }
+            break;
         case HARVEST:
             iexamine::harvest_plant( you, examp, false );
             break;

@@ -322,6 +322,9 @@ using skill_id = string_id<Skill>;
 class SkillDisplayType;
 using skill_displayType_id = string_id<SkillDisplayType>;
 
+class soil_amendment;
+using soil_amendment_id = string_id<soil_amendment>;
+
 struct species_type;
 using species_id = string_id<species_type>;
 

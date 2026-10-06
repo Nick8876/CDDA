@@ -20,7 +20,7 @@
     "contamination": [ { "disease": "highly_contaminated_food", "probability": 100 } ],
     "volume": "62 ml",
     "fun": -25,
-    "flags": [ "INEDIBLE" ]
+    "flags": [ "FERTILIZER", "INEDIBLE" ]
   },
   {
     "type": "ITEM",
@@ -38,6 +38,8 @@
     "id": "feces_dog",
     "name": { "str": "dog dung" },
     "copy-from": "feces_manure",
+    "//": "Dog and cat droppings carry parasites that infect people; they don't belong on food crops.",
+    "delete": { "flags": [ "FERTILIZER" ] },
     "description": "Droppings from a canine."
   },
   {
