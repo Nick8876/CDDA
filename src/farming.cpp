@@ -145,6 +145,38 @@ constexpr double disease_growth_factor = 0.8;
 // How many past crops a bed remembers.
 constexpr size_t history_length = 4;
 
+struct plot_info {
+    double capacity = ground_capacity_mm;
+    double drain = ground_drain_mm_per_day;
+    // Open to the sky: rain and snow fall on it.
+    bool exposed = true;
+    bool greenhouse = false;
+};
+
+bool is_planter( const map &here, const tripoint_bub_ms &p )
+{
+    static const furn_str_id furn_f_planter( "f_planter" );
+    const furn_t &furn = here.furn( p ).obj();
+    if( furn.id == furn_f_planter ) {
+        return true;
+    }
+    return furn.plant && furn.plant->base == furn_f_planter;
+}
+
+plot_info plot_at( const map &here, const tripoint_bub_ms &p )
+{
+    plot_info plot;
+    if( is_planter( here, p ) ) {
+        plot.capacity = planter_capacity_mm;
+        plot.drain = planter_drain_mm_per_day;
+    }
+    plot.greenhouse = here.has_flag_ter( "GREENHOUSE", p );
+    // Read from the terrain itself rather than the outside cache, which isn't built for
+    // map pieces loaded in the background (base camp fields, map generation).
+    plot.exposed = !here.has_flag( ter_furn_flag::TFLAG_INDOORS, p );
+    return plot;
+}
+
 // Light.  About 45% of sunlight's energy is photosynthetically active, at 4.57 umol per joule.
 constexpr double sun_photons_mol_per_joule = 0.45 * 4.57e-6;
 // A window lets a little daylight onto a bed next to it.
@@ -219,38 +251,6 @@ double light_factor( double dli, const crop_profile &profile )
         return 1.0;
     }
     return std::clamp( dli / profile.light_need, 0.0, 1.0 );
-}
-
-struct plot_info {
-    double capacity = ground_capacity_mm;
-    double drain = ground_drain_mm_per_day;
-    // Open to the sky: rain and snow fall on it.
-    bool exposed = true;
-    bool greenhouse = false;
-};
-
-bool is_planter( const map &here, const tripoint_bub_ms &p )
-{
-    static const furn_str_id furn_f_planter( "f_planter" );
-    const furn_t &furn = here.furn( p ).obj();
-    if( furn.id == furn_f_planter ) {
-        return true;
-    }
-    return furn.plant && furn.plant->base == furn_f_planter;
-}
-
-plot_info plot_at( const map &here, const tripoint_bub_ms &p )
-{
-    plot_info plot;
-    if( is_planter( here, p ) ) {
-        plot.capacity = planter_capacity_mm;
-        plot.drain = planter_drain_mm_per_day;
-    }
-    plot.greenhouse = here.has_flag_ter( "GREENHOUSE", p );
-    // Read from the terrain itself rather than the outside cache, which isn't built for
-    // map pieces loaded in the background (base camp fields, map generation).
-    plot.exposed = !here.has_flag( ter_furn_flag::TFLAG_INDOORS, p );
-    return plot;
 }
 
 /** Reference evapotranspiration (mm/day): Hargreaves' radiation method, ET0 = 0.0135 (T + 17.8) Rs. */
@@ -582,9 +582,9 @@ int day_index( const time_point &t )
     return to_days<int>( t - calendar::turn_zero );
 }
 
-time_point day_start( int day_index )
+time_point day_start( int day )
 {
-    return calendar::turn_zero + time_duration::from_days( day_index );
+    return calendar::turn_zero + time_duration::from_days( day );
 }
 
 const daily_weather &weather_on_day( const tripoint_abs_omt &omt, int day )

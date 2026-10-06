@@ -3079,6 +3079,11 @@
     "name": "Fillable pit"
   },
   {
+    "id": "GREENHOUSE",
+    "type": "json_flag",
+    "//": "Terrain inside a glass greenhouse: crops get the greenhouse's warmth and filtered light (realistic farming)."
+  },
+  {
     "id": "PLOWABLE",
     "type": "json_flag",
     "//": "Terrain / Furniture flag used in Construction pre_flags field",

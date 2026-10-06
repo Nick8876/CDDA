@@ -40,7 +40,7 @@ struct daily_weather {
 
 /** Days since the start of the game; day boundaries are midnight. */
 int day_index( const time_point &t );
-time_point day_start( int day_index );
+time_point day_start( int day );
 
 /** Weather summary for one day over one overmap tile.  Cached, so cheap to call repeatedly. */
 const daily_weather &weather_on_day( const tripoint_abs_omt &omt, int day_index );

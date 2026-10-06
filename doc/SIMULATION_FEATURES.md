@@ -87,6 +87,10 @@ Main code: `src/farming.cpp`, `src/crop_profile.cpp`, `map::grow_plant` and `map
 - **Background map pieces.** Crop simulation also runs when the game loads map pieces outside your area (base camp fields), reading roofs from the terrain itself.
 - Fertilizing in realistic mode still leaves the usual "fertilized" marker, so each growth stage gets one application, by you or by NPCs.
 
+## Tests
+
+`tests/farming_test.cpp` checks the crop response math (growing degree days, frost damage with and without hardening, heat loss) and that crop profiles and fertilizer data load. GitHub's checks build and run it; it has not been run yet.
+
 ## Known gaps and ideas for later
 
 - Raw manure food safety (pathogens on root and leafy crops harvested soon after manuring).
