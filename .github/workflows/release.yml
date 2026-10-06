@@ -1,23 +1,7 @@
 name: "Experimental Release"
 concurrency: release
+# Only runs when started by hand from the Actions tab ("Run workflow").
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/release.yml'
-      - 'android/**'
-      - 'build-data/**'
-      - 'build-scripts/generate-release-notes.js'
-      - 'cataclysm-launcher'
-      - 'data/**'
-      - 'doc/**'
-      - 'gfx/**'
-      - 'lang/po/*.po'
-      - 'LICENSE*'
-      - 'Makefile'
-      - 'README*'
-      - 'src/**'
   workflow_dispatch:
 
 env:
@@ -47,12 +31,8 @@ jobs:
         with:
           persist-credentials: false
       - name: Generate Release Notes
-        id: generate-release-notes
         run: |
-          npm install @actions/github@8
-          node build-scripts/generate-release-notes.js '${{ secrets.GITHUB_TOKEN }}' "${STEPS_GENERATE_ENV_VARS_OUTPUTS_TAG_NAME}" "$(git log -1 --format='%H')" > notes.txt
-        env:
-          STEPS_GENERATE_ENV_VARS_OUTPUTS_TAG_NAME: ${{ steps.generate_env_vars.outputs.tag_name }}
+          echo "Windows build with graphics and sound, English only, built from commit $(git log -1 --format='%H')." > notes.txt
       - run: |
           gh release create ${STEPS_GENERATE_ENV_VARS_OUTPUTS_TAG_NAME} --notes-file notes.txt --prerelease --title "${STEPS_GENERATE_ENV_VARS_OUTPUTS_RELEASE_NAME}" --target "$(git log -1 --format='%H')"
         env:
@@ -61,34 +41,6 @@ jobs:
 
   compose-tilesets:
     uses: ./.github/workflows/compose-tilesets.yml
-  build-translations:
-    uses: ./.github/workflows/build-translations.yml
-    secrets:
-      TX_TOKEN: ${{ secrets.TX_TOKEN }}
-
-  publish-translations:
-    name: Publish translations
-    needs:
-      - release
-      - build-translations
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Fetch translations artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: translations
-          path: translations
-      - name: Upload translations to release
-        env:
-          GH_REPO: ${{ github.repository }}
-          NEEDS_RELEASE_OUTPUTS_TIMESTAMP: ${{ needs.release.outputs.timestamp }}
-        run: |
-          archive="cdda-translations-${NEEDS_RELEASE_OUTPUTS_TIMESTAMP}.tar.gz"
-          (cd translations && tar --sort=name --owner=0 --group=0 --numeric-owner -czf "../${archive}" -- *)
-          gh release upload "cdda-experimental-${NEEDS_RELEASE_OUTPUTS_TIMESTAMP}" "${archive}"
-
   # Compile GLSL -> spv/dxil/msl once on Linux and share with every tiles
   # platform job. Runtime variant_pass picks the format matching its GPU
   # backend (Vulkan/D3D12/Metal). Curses jobs do not fetch it.
@@ -109,20 +61,11 @@ jobs:
     needs:
       - release
       - compose-tilesets
-      - build-translations
       - compile-shaders
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: Windows Tiles x64 MSVC
-            artifact: windows-with-graphics-x64
-            arch: x64
-            os: windows-2022
-            ext: zip
-            content: application/zip
-            tiles: 1
-            sound: 0
           - name: Windows Tiles Sounds x64 MSVC
             artifact: windows-with-graphics-and-sounds-x64
             arch: x64
@@ -131,71 +74,6 @@ jobs:
             content: application/zip
             tiles: 1
             sound: 1
-          - name: Linux Tiles x64
-            os: ubuntu-24.04
-            android: none
-            libbacktrace: 1
-            tiles: 1
-            sound: 0
-            artifact: linux-with-graphics-x64
-            ext: tar.gz
-            content: application/gzip
-          - name: Linux Tiles Sounds x64
-            os: ubuntu-24.04
-            android: none
-            libbacktrace: 1
-            tiles: 1
-            sound: 1
-            artifact: linux-with-graphics-and-sounds-x64
-            ext: tar.gz
-            content: application/gzip
-          - name: Linux Curses x64
-            os: ubuntu-24.04
-            android: none
-            libbacktrace: 1
-            tiles: 0
-            sound: 0
-            artifact: linux-terminal-only-x64
-            ext: tar.gz
-            content: application/gzip
-          - name: macOS Curses Universal Binary (x64 and arm64)
-            os: macos-15
-            tiles: 0
-            sound: 0
-            artifact: osx-terminal-only-universal
-            ext: dmg
-            content: application/x-apple-diskimage
-          - name: macOS Tiles Universal Binary (x64 and arm64)
-            os: macos-15
-            tiles: 1
-            sound: 1
-            artifact: osx-with-graphics-universal
-            ext: dmg
-            content: application/x-apple-diskimage
-          - name: Android x64
-            os: ubuntu-latest
-            tiles: 1
-            sound: 1
-            android: arm64
-            artifact: android-x64
-            ext: apk
-            content: application/apk
-          - name: Android x32
-            os: ubuntu-latest
-            tiles: 1
-            sound: 1
-            android: arm32
-            artifact: android-x32
-            ext: apk
-            content: application/apk 
-          #- name: WebAssembly Bundle
-          #  os: ubuntu-latest
-          #  artifact: wasm
-          #  ext: zip
-          #  content: application/zip
-          #  tiles: 1
-          #  sound: 0
-          #  wasm: true
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     permissions: write-all
@@ -222,10 +100,6 @@ jobs:
           pattern: tileset-*
           path: gfx
           merge-multiple: true
-      - name: Fetch translations artifact into build
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: translations
       - name: Fetch shader artifacts into build
         if: matrix.tiles == 1
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
